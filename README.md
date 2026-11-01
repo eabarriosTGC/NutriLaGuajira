@@ -37,6 +37,9 @@ Guía paso a paso en **[`COMO_PROBAR.md`](COMO_PROBAR.md)**: instalación,
 credenciales, los valores exactos de cada caso (verde / amarillo / rojo),
 validaciones, prueba de persistencia y plantilla para reportar hallazgos.
 
+El estado del proyecto, las deudas conocidas y el plan del Sprint 2 están en
+**[`ESTADO.md`](ESTADO.md)**.
+
 Descarga directa del APK:
 <https://github.com/eabarriosTGC/NutriLaGuajira/releases/download/v0.1.0-avance1/app-debug.apk>
 
