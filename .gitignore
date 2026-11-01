@@ -1,0 +1,19 @@
+# Raíz del repositorio
+.DS_Store
+*.log
+
+# Proyecto Flutter (entrega_avance1_nutrilaguajira/nutrilaguajira)
+.dart_tool/
+.packages
+build/
+.flutter-plugins
+.flutter-plugins-dependencies
+android/local.properties
+android/.gradle/
+*.iml
+.gradle/
+.native-assets/
+
+# APK de la entrega: se distribuye como asset del release de GitHub,
+# no dentro del historial de git (pesa ~166 MB en modo debug).
+entrega_avance1_nutrilaguajira/app-debug.apk

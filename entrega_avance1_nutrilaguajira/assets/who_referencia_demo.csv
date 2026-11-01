@@ -1,0 +1,46 @@
+# Tabla de referencia Peso/Talla (P/T) - MODO DEMOSTRACION (DEMO)
+# -------------------------------------------------------------------------
+# ADVERTENCIA: valores simplificados para el Avance 1. NO son las tablas
+# oficiales OMS y NO tienen validez clinica. Se usan solo para demostrar el
+# flujo de calculo del Z-score y el semaforo nutricional.
+#
+# La version final debe reemplazar este archivo por las tablas OMS completas
+# (Weight-for-length/height, 0-5 anos, por sexo y talla, con mediana y DE)
+# segun la Resolucion 2465 de 2016 / Resolucion 115 de 2026 (Colombia).
+#
+# Estructura: sexo,talla_cm,mediana,de
+#   sexo     : M = masculino, F = femenino
+#   talla_cm : longitud/talla en centimetros (clave de interpolacion lineal)
+#   mediana  : mediana de peso (kg) para esa talla y sexo
+#   de       : desviacion estandar de peso (kg) para esa talla y sexo
+#
+# Rango util de esta tabla DEMO: 45 cm a 110 cm (P/T en menores de 5 anos).
+sexo,talla_cm,mediana,de
+M,45,2.50,0.35
+M,50,3.40,0.45
+M,55,4.50,0.55
+M,60,5.90,0.65
+M,65,7.00,0.75
+M,70,8.20,0.85
+M,75,9.20,0.95
+M,80,10.20,1.00
+M,85,11.30,1.10
+M,90,12.40,1.20
+M,95,13.40,1.30
+M,100,14.50,1.40
+M,105,15.60,1.50
+M,110,16.70,1.60
+F,45,2.40,0.35
+F,50,3.30,0.45
+F,55,4.40,0.55
+F,60,5.70,0.65
+F,65,6.80,0.75
+F,70,7.90,0.85
+F,75,8.90,0.95
+F,80,9.90,1.00
+F,85,11.00,1.10
+F,90,12.10,1.20
+F,95,13.10,1.30
+F,100,14.20,1.40
+F,105,15.30,1.50
+F,110,16.40,1.60
