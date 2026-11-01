@@ -31,6 +31,19 @@ Todo está en la carpeta [`entrega_avance1_nutrilaguajira/`](entrega_avance1_nut
 - `nutrilaguajira/` — proyecto Flutter completo
 - `app-debug.apk` — APK de depuración (también adjunto en la sección *Releases*)
 
+### Probar el APK (para el equipo)
+
+Guía paso a paso en **[`COMO_PROBAR.md`](COMO_PROBAR.md)**: instalación,
+credenciales, los valores exactos de cada caso (verde / amarillo / rojo),
+validaciones, prueba de persistencia y plantilla para reportar hallazgos.
+
+Descarga directa del APK:
+<https://github.com/eabarriosTGC/NutriLaGuajira/releases/download/v0.1.0-avance1/app-debug.apk>
+
+Requiere **Android 7.0 (API 24) o superior**. Es un APK universal de 166 MB
+(incluye arm64, armv7 y x86_64), firmado con la clave de *debug*: si Play
+Protect avisa, es esperado → "Instalar de todas formas".
+
 ### Inicio rápido
 
 ```bash

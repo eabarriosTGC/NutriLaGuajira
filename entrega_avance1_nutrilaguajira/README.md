@@ -14,6 +14,10 @@ deshabilitados en la interfaz.
 > clínica final usará las tablas OMS completas y la normativa colombiana
 > (Resolución 2465 de 2016 / Resolución 115 de 2026).
 
+> **¿Vas a probar el APK?** Sigue [`../COMO_PROBAR.md`](../COMO_PROBAR.md):
+> instalación, credenciales, los valores exactos de cada caso verde/amarillo/rojo,
+> validaciones, prueba de persistencia y plantilla para reportar hallazgos.
+
 ---
 
 ## 1. Qué quedó funcional
