@@ -22,8 +22,10 @@ enum ClasificacionNutricional {
   /// Clave estable que se persiste en SQLite ('verde', 'amarillo', 'rojo').
   String get clave => name;
 
-  static ClasificacionNutricional desdeClave(String valor) => values
-      .firstWhere((c) => c.name == valor.toLowerCase(), orElse: () => verde);
+  static ClasificacionNutricional desdeClave(String valor) => values.firstWhere(
+    (c) => c.name == valor.toLowerCase(),
+    orElse: () => verde,
+  );
 }
 
 /// Referencia ya interpolada a la talla exacta del infante.
@@ -125,9 +127,8 @@ class NutricionService {
     required double tallaCm,
   }) {
     final sexoNormalizado = sexo.toUpperCase();
-    final filas =
-        _referencias.where((r) => r.sexo == sexoNormalizado).toList()
-          ..sort((a, b) => a.tallaCm.compareTo(b.tallaCm));
+    final filas = _referencias.where((r) => r.sexo == sexoNormalizado).toList()
+      ..sort((a, b) => a.tallaCm.compareTo(b.tallaCm));
 
     if (filas.isEmpty) {
       throw StateError(
@@ -248,7 +249,9 @@ class NutricionService {
       '${referencia.tallaCm.toStringAsFixed(1)} cm '
       '(${referencia.interpolada ? 'valor interpolado' : 'valor exacto de tabla'}).',
     );
-    criterios.add('Z Peso/Talla = ${z.toStringAsFixed(2)} -> ${porZ.etiqueta}.');
+    criterios.add(
+      'Z Peso/Talla = ${z.toStringAsFixed(2)} -> ${porZ.etiqueta}.',
+    );
 
     var clasificacion = porZ;
     var muacEvaluado = false;
@@ -271,7 +274,9 @@ class NutricionService {
     }
 
     if (edema) {
-      criterios.add('Edema bilateral presente -> ROJO (criterio independiente).');
+      criterios.add(
+        'Edema bilateral presente -> ROJO (criterio independiente).',
+      );
       clasificacion = ClasificacionNutricional.rojo;
     }
 
@@ -336,7 +341,11 @@ class NutricionService {
     int edadMeses,
   ) {
     if (pesoKg < pesoMinKg || pesoKg > pesoMaxKg) {
-      throw ArgumentError.value(pesoKg, 'pesoKg', 'Fuera de rango (0.5 - 30 kg)');
+      throw ArgumentError.value(
+        pesoKg,
+        'pesoKg',
+        'Fuera de rango (0.5 - 30 kg)',
+      );
     }
     if (tallaCm < tallaMinCm || tallaCm > tallaMaxCm) {
       throw ArgumentError.value(

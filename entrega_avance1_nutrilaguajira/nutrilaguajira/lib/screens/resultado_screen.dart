@@ -50,10 +50,7 @@ class ResultadoScreen extends StatelessWidget {
             // ---------------------------------------------------- semáforo
             Container(
               width: double.infinity,
-              padding: const EdgeInsets.symmetric(
-                horizontal: 20,
-                vertical: 28,
-              ),
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 28),
               decoration: BoxDecoration(
                 color: fondo,
                 borderRadius: BorderRadius.circular(20),
@@ -169,8 +166,10 @@ class ResultadoScreen extends StatelessWidget {
                   children: [
                     Row(
                       children: [
-                        Icon(Icons.medical_information_outlined,
-                            color: esquema.primary),
+                        Icon(
+                          Icons.medical_information_outlined,
+                          color: esquema.primary,
+                        ),
                         const SizedBox(width: 8),
                         const Text(
                           'Recomendación',

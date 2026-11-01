@@ -171,7 +171,8 @@ class _NinoFormScreenState extends State<NinoFormScreen> {
                 controller: _apellidos,
                 textCapitalization: TextCapitalization.words,
                 decoration: const InputDecoration(labelText: 'Apellidos *'),
-                validator: (v) => Validadores.obligatorio(v, campo: 'Apellidos'),
+                validator: (v) =>
+                    Validadores.obligatorio(v, campo: 'Apellidos'),
               ),
               const SizedBox(height: 14),
               TextFormField(
@@ -181,7 +182,8 @@ class _NinoFormScreenState extends State<NinoFormScreen> {
                   labelText: 'Documento *',
                   helperText: 'Registro civil, tarjeta de identidad o código',
                 ),
-                validator: (v) => Validadores.obligatorio(v, campo: 'Documento'),
+                validator: (v) =>
+                    Validadores.obligatorio(v, campo: 'Documento'),
               ),
               const SizedBox(height: 14),
               TextFormField(

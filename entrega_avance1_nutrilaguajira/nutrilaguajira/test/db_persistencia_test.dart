@@ -45,21 +45,24 @@ void main() {
     }
   });
 
-  test('la semilla crea 3 infantes y 4 evaluaciones con verde/amarillo/rojo', () async {
-    expect(await repo.contarNinos(), 3);
+  test(
+    'la semilla crea 3 infantes y 4 evaluaciones con verde/amarillo/rojo',
+    () async {
+      expect(await repo.contarNinos(), 3);
 
-    final historial = await repo.historial();
-    expect(historial.length, 4);
+      final historial = await repo.historial();
+      expect(historial.length, 4);
 
-    final colores = historial.map((e) => e.color).toSet();
-    expect(colores, containsAll(<String>['verde', 'amarillo', 'rojo']));
+      final colores = historial.map((e) => e.color).toSet();
+      expect(colores, containsAll(<String>['verde', 'amarillo', 'rojo']));
 
-    // El caso de edema debe quedar ROJO aunque su Z sea normal.
-    final conEdema = historial.where((e) => e.edema).toList();
-    expect(conEdema, hasLength(1));
-    expect(conEdema.single.color, 'rojo');
-    expect(conEdema.single.zPesoTalla, greaterThan(-1));
-  });
+      // El caso de edema debe quedar ROJO aunque su Z sea normal.
+      final conEdema = historial.where((e) => e.edema).toList();
+      expect(conEdema, hasLength(1));
+      expect(conEdema.single.color, 'rojo');
+      expect(conEdema.single.zPesoTalla, greaterThan(-1));
+    },
+  );
 
   test('la tabla de referencia se carga desde el CSV a SQLite', () async {
     final referencias = await repo.referencias();
@@ -75,16 +78,19 @@ void main() {
     expect(await repo.autenticar('nadie', 'demo123'), isNull);
   });
 
-  test('el historial se ordena de la evaluación más reciente a la más antigua', () async {
-    final historial = await repo.historial();
-    for (var i = 0; i < historial.length - 1; i++) {
-      expect(
-        historial[i].fecha.isAfter(historial[i + 1].fecha) ||
-            historial[i].fecha.isAtSameMomentAs(historial[i + 1].fecha),
-        isTrue,
-      );
-    }
-  });
+  test(
+    'el historial se ordena de la evaluación más reciente a la más antigua',
+    () async {
+      final historial = await repo.historial();
+      for (var i = 0; i < historial.length - 1; i++) {
+        expect(
+          historial[i].fecha.isAfter(historial[i + 1].fecha) ||
+              historial[i].fecha.isAtSameMomentAs(historial[i + 1].fecha),
+          isTrue,
+        );
+      }
+    },
+  );
 
   test('los datos persisten después de cerrar y reabrir la base', () async {
     final ninos = await repo.listarNinos();
@@ -126,11 +132,14 @@ void main() {
     expect(recuperado!.nombreCompleto, ninos.first.nombreCompleto);
   });
 
-  test('el detalle de una evaluación incluye nombre y comunidad del infante', () async {
-    final historial = await repo.historial();
-    final detalle = await repo.evaluacionPorId(historial.first.id!);
-    expect(detalle, isNotNull);
-    expect(detalle!.ninoNombre, isNotEmpty);
-    expect(detalle.comunidad, isNotEmpty);
-  });
+  test(
+    'el detalle de una evaluación incluye nombre y comunidad del infante',
+    () async {
+      final historial = await repo.historial();
+      final detalle = await repo.evaluacionPorId(historial.first.id!);
+      expect(detalle, isNotNull);
+      expect(detalle!.ninoNombre, isNotEmpty);
+      expect(detalle.comunidad, isNotEmpty);
+    },
+  );
 }

@@ -101,8 +101,10 @@ class AcercaDeScreen extends StatelessWidget {
                 children: [
                   Row(
                     children: [
-                      Icon(Icons.warning_amber_rounded,
-                          color: esquema.onErrorContainer),
+                      Icon(
+                        Icons.warning_amber_rounded,
+                        color: esquema.onErrorContainer,
+                      ),
                       const SizedBox(width: 8),
                       Text(
                         'Prototipo académico',

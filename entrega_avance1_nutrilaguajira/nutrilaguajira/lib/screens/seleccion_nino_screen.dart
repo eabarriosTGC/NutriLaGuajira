@@ -39,9 +39,7 @@ class _SeleccionNinoScreenState extends State<SeleccionNinoScreen> {
 
   Future<void> _irAEvaluacion(Nino nino) async {
     await Navigator.of(context).push(
-      MaterialPageRoute<void>(
-        builder: (_) => EvaluacionFormScreen(nino: nino),
-      ),
+      MaterialPageRoute<void>(builder: (_) => EvaluacionFormScreen(nino: nino)),
     );
     if (mounted) _recargar();
   }
@@ -114,8 +112,7 @@ class _SeleccionNinoScreenState extends State<SeleccionNinoScreen> {
                             child: Text(
                               nino.nombres.isEmpty
                                   ? '?'
-                                  : nino.nombres.characters.first
-                                        .toUpperCase(),
+                                  : nino.nombres.characters.first.toUpperCase(),
                               style: TextStyle(
                                 fontWeight: FontWeight.w700,
                                 color: esquema.onPrimaryContainer,

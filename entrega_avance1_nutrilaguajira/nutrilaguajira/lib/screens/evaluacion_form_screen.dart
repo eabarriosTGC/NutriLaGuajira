@@ -47,7 +47,10 @@ class _EvaluacionFormScreenState extends State<EvaluacionFormScreen> {
   int get _edadMeses => Edad.enMeses(widget.nino.fechaNacimiento, _ahora);
 
   bool get _edadValida =>
-      Validadores.edadMeses(_edadMeses, nacimiento: widget.nino.fechaNacimiento) ==
+      Validadores.edadMeses(
+        _edadMeses,
+        nacimiento: widget.nino.fechaNacimiento,
+      ) ==
       null;
 
   Future<void> _guardar() async {
@@ -177,10 +180,7 @@ class _EvaluacionFormScreenState extends State<EvaluacionFormScreen> {
                 ),
               ],
               const SizedBox(height: 20),
-              Text(
-                'Medidas',
-                style: Theme.of(context).textTheme.titleLarge,
-              ),
+              Text('Medidas', style: Theme.of(context).textTheme.titleLarge),
               const SizedBox(height: 14),
               TextFormField(
                 key: const Key('campo-peso'),
@@ -227,7 +227,8 @@ class _EvaluacionFormScreenState extends State<EvaluacionFormScreen> {
                 ],
                 decoration: const InputDecoration(
                   labelText: 'Perímetro braquial MUAC (cm) *',
-                  helperText: 'Entre 5 y 25 cm · no aplica si es menor de 6 meses',
+                  helperText:
+                      'Entre 5 y 25 cm · no aplica si es menor de 6 meses',
                   suffixText: 'cm',
                 ),
                 validator: Validadores.muac,

@@ -17,9 +17,36 @@ void main() {
 
   final casos = <List<Object>>[
     ['VERDE', 'Jose Angel (M, 11 meses)', 'M', 11, 9.5, 75.0, 13.5, false],
-    ['AMARILLO', 'Yuliana Andrea (F, 18 meses)', 'F', 18, 8.7, 80.0, 12.2, false],
-    ['ROJO por Z', 'Andres David (M, 24 meses)', 'M', 24, 8.8, 85.0, 12.0, false],
-    ['ROJO por edema', 'Andres David (M, 25 meses)', 'M', 25, 12.0, 86.0, 12.4, true],
+    [
+      'AMARILLO',
+      'Yuliana Andrea (F, 18 meses)',
+      'F',
+      18,
+      8.7,
+      80.0,
+      12.2,
+      false,
+    ],
+    [
+      'ROJO por Z',
+      'Andres David (M, 24 meses)',
+      'M',
+      24,
+      8.8,
+      85.0,
+      12.0,
+      false,
+    ],
+    [
+      'ROJO por edema',
+      'Andres David (M, 25 meses)',
+      'M',
+      25,
+      12.0,
+      86.0,
+      12.4,
+      true,
+    ],
   ];
 
   stdout.writeln('=' * 96);

@@ -7,8 +7,7 @@ import 'models/referencia_who.dart';
 
 /// Consultas de la app sobre SQLite. Toda la persistencia pasa por aqui.
 class Repositorio {
-  Repositorio({DbNutriLaGuajira? db})
-    : _db = db ?? DbNutriLaGuajira.instance;
+  Repositorio({DbNutriLaGuajira? db}) : _db = db ?? DbNutriLaGuajira.instance;
 
   final DbNutriLaGuajira _db;
 
@@ -70,9 +69,7 @@ class Repositorio {
     final filas = await base.query(
       DbNutriLaGuajira.tablaNinos,
       columns: ['id'],
-      where: excluirId == null
-          ? 'documento = ?'
-          : 'documento = ? AND id <> ?',
+      where: excluirId == null ? 'documento = ?' : 'documento = ? AND id <> ?',
       whereArgs: excluirId == null
           ? [documento.trim()]
           : [documento.trim(), excluirId],
@@ -99,7 +96,8 @@ class Repositorio {
 
   Future<Evaluacion?> evaluacionPorId(int id) async {
     final base = await _base;
-    final filas = await base.rawQuery('''
+    final filas = await base.rawQuery(
+      '''
       SELECT e.*,
              n.nombres || ' ' || n.apellidos AS nino_nombre,
              n.comunidad AS comunidad
@@ -107,17 +105,16 @@ class Repositorio {
       INNER JOIN ${DbNutriLaGuajira.tablaNinos} n ON n.id = e.nino_id
       WHERE e.id = ?
       LIMIT 1
-    ''', [id]);
+    ''',
+      [id],
+    );
     if (filas.isEmpty) return null;
     return Evaluacion.fromMap(filas.first);
   }
 
   Future<int> insertarEvaluacion(Evaluacion evaluacion) async {
     final base = await _base;
-    return base.insert(
-      DbNutriLaGuajira.tablaEvaluaciones,
-      evaluacion.toMap(),
-    );
+    return base.insert(DbNutriLaGuajira.tablaEvaluaciones, evaluacion.toMap());
   }
 
   Future<int> contarNinos() async {

@@ -41,9 +41,7 @@ void main() {
     await tester.pumpAndSettle();
   }
 
-  testWidgets('campos vacíos muestran mensajes de obligatorio', (
-    tester,
-  ) async {
+  testWidgets('campos vacíos muestran mensajes de obligatorio', (tester) async {
     await montar(tester, crearNino(mesesDeEdad: 18));
 
     await tester.ensureVisible(find.byKey(botonKey));

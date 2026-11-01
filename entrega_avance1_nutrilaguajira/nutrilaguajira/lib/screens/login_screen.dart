@@ -133,9 +133,7 @@ class _LoginScreenState extends State<LoginScreen> {
                               ? 'Ocultar contraseña'
                               : 'Mostrar contraseña',
                           icon: Icon(
-                            _verClave
-                                ? Icons.visibility_off
-                                : Icons.visibility,
+                            _verClave ? Icons.visibility_off : Icons.visibility,
                           ),
                           onPressed: () =>
                               setState(() => _verClave = !_verClave),
@@ -201,9 +199,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                 const SizedBox(width: 8),
                                 const Text(
                                   'Credenciales demo',
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.w700,
-                                  ),
+                                  style: TextStyle(fontWeight: FontWeight.w700),
                                 ),
                               ],
                             ),

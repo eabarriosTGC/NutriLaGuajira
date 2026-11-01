@@ -102,8 +102,7 @@ class _HomeScreenState extends State<HomeScreen> {
               BotonMenu(
                 icono: Icons.monitor_heart_outlined,
                 titulo: 'Nuevo tamizaje',
-                descripcion:
-                    'Registrar infante y evaluación antropométrica con semáforo',
+                descripcion: 'Registrar infante y evaluación antropométrica con semáforo',
                 onTap: () async {
                   await Navigator.of(context).push(
                     MaterialPageRoute<void>(
@@ -161,10 +160,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   padding: const EdgeInsets.all(14),
                   child: Row(
                     children: [
-                      Icon(
-                        Icons.offline_bolt_outlined,
-                        color: esquema.primary,
-                      ),
+                      Icon(Icons.offline_bolt_outlined, color: esquema.primary),
                       const SizedBox(width: 10),
                       Expanded(
                         child: Text(

@@ -35,7 +35,11 @@ class BotonMenu extends StatelessWidget {
                 CircleAvatar(
                   radius: 26,
                   backgroundColor: esquema.primaryContainer,
-                  child: Icon(icono, size: 28, color: esquema.onPrimaryContainer),
+                  child: Icon(
+                    icono,
+                    size: 28,
+                    color: esquema.onPrimaryContainer,
+                  ),
                 ),
                 const SizedBox(width: 16),
                 Expanded(
