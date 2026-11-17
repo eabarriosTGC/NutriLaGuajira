@@ -2,6 +2,7 @@ import 'package:sqflite/sqflite.dart';
 
 import 'db_nutrilaguajira.dart';
 import 'models/evaluacion.dart';
+import 'models/evaluacion_reporte.dart';
 import 'models/nino.dart';
 import 'models/referencia_who.dart';
 
@@ -115,6 +116,49 @@ class Repositorio {
   Future<int> insertarEvaluacion(Evaluacion evaluacion) async {
     final base = await _base;
     return base.insert(DbNutriLaGuajira.tablaEvaluaciones, evaluacion.toMap());
+  }
+
+  // ---------------------------------------------------------------- reportes
+  /// Comunidades/rancherías distintas registradas (para el filtro del reporte).
+  Future<List<String>> comunidades() async {
+    final base = await _base;
+    final filas = await base.rawQuery(
+      'SELECT DISTINCT comunidad FROM ${DbNutriLaGuajira.tablaNinos} '
+      'ORDER BY comunidad COLLATE NOCASE ASC',
+    );
+    return filas
+        .map((fila) => fila['comunidad'] as String)
+        .where((comunidad) => comunidad.trim().isNotEmpty)
+        .toList();
+  }
+
+  /// Evaluaciones aplanadas con los datos del infante (join), para CSV/PDF y
+  /// la vista consolidada. Orden: más recientes primero.
+  Future<List<EvaluacionReporte>> evaluacionesParaReporte() async {
+    final base = await _base;
+    final filas = await base.rawQuery('''
+      SELECT e.id              AS id_evaluacion,
+             e.nino_id         AS id_infante,
+             e.fecha           AS fecha_evaluacion,
+             e.peso_kg         AS peso_kg,
+             e.talla_cm        AS talla_cm,
+             e.muac_cm         AS muac_cm,
+             e.edema           AS edema,
+             e.z_peso_talla    AS z_peso_talla,
+             e.clasificacion   AS clasificacion,
+             e.color           AS color,
+             e.lat             AS lat,
+             e.lng             AS lng,
+             n.nombres         AS nombres,
+             n.apellidos       AS apellidos,
+             n.fecha_nacimiento AS fecha_nacimiento,
+             n.sexo            AS sexo,
+             n.comunidad       AS rancheria
+      FROM ${DbNutriLaGuajira.tablaEvaluaciones} e
+      INNER JOIN ${DbNutriLaGuajira.tablaNinos} n ON n.id = e.nino_id
+      ORDER BY e.fecha DESC, e.id DESC
+    ''');
+    return filas.map(EvaluacionReporte.fromMap).toList();
   }
 
   Future<int> contarNinos() async {

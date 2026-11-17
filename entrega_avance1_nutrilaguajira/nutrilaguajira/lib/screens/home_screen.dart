@@ -5,6 +5,7 @@ import '../widgets/componentes.dart';
 import 'acerca_de_screen.dart';
 import 'historial_screen.dart';
 import 'login_screen.dart';
+import 'reportes_screen.dart';
 import 'seleccion_nino_screen.dart';
 
 /// Menu principal del prototipo.
@@ -146,14 +147,19 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ),
               const SizedBox(height: 10),
-              const Wrap(
+              Wrap(
                 spacing: 10,
                 runSpacing: 10,
                 children: [
-                  ChipProximoSprint(
-                    etiqueta: 'Reportes PDF/CSV: próximo sprint',
+                  ActionChip(
+                    label: const Text('Reportes CSV · PDF próximo bloque'),
+                    onPressed: () => Navigator.of(context).push(
+                      MaterialPageRoute<void>(
+                        builder: (_) => const ReportesScreen(),
+                      ),
+                    ),
                   ),
-                  ChipProximoSprint(etiqueta: 'SMS: próximo sprint'),
+                  const ChipProximoSprint(etiqueta: 'SMS: próximo sprint'),
                 ],
               ),
               const SizedBox(height: 24),
