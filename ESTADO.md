@@ -11,7 +11,7 @@ Documento de traspaso para retomar el trabajo sin reconstruir contexto.
 |---|---|
 | Repo | https://github.com/eabarriosTGC/NutriLaGuajira (público, MIT) |
 | Rama | `main` |
-| HEAD actual | `8d942a5` (docs: agregar ESTADO.md) |
+| HEAD actual | `70d0ba8` (docs: evidencias de ejecución del Sprint 2) |
 | Último commit de *contenido* del avance | `b852040` (docs: guía COMO_PROBAR.md) |
 | Tag / release | `v0.1.0-avance1` con `app-debug.apk` adjunto |
 | ⚠️ Commit al que apunta el tag | `4bf5c87` (feat: entrega avance 1) — el APK del release se compiló **antes** de `b38b896` (dart format) y de los commits de docs posteriores |
