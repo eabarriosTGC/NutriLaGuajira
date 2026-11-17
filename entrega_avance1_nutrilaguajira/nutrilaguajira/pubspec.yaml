@@ -40,7 +40,9 @@ dependencies:
   flutter_localizations:
     sdk: flutter
   geolocator: ^14.1.2
-
+  path_provider: ^2.1.6
+  share_plus: ^13.3.1
+  open_filex: ^5.0.0
 dev_dependencies:
   flutter_test:
     sdk: flutter
