@@ -1,4 +1,9 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Ubicación para capturar las coordenadas de la ranchería al tamizar.
+         Se pide permiso en tiempo de ejecución y es opcional: si se deniega,
+         el tamizaje se guarda sin coordenadas. -->
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
     <application
         android:label="nutrilaguajira"
         android:name="${applicationName}"

@@ -142,4 +142,110 @@ void main() {
       expect(detalle.comunidad, isNotEmpty);
     },
   );
+
+  test('una evaluación guarda y recupera coordenadas lat/lng', () async {
+    final nino = (await repo.listarNinos()).first;
+
+    final conCoordenadas = Evaluacion(
+      ninoId: nino.id!,
+      fecha: DateTime.now(),
+      edadMeses: 12,
+      pesoKg: 9.5,
+      tallaCm: 75.0,
+      muacCm: 13.5,
+      edema: false,
+      zPesoTalla: 0.32,
+      clasificacion: 'VERDE',
+      color: 'verde',
+      observacion: 'Evaluación con ubicación.',
+      lat: 11.24712,
+      lng: -72.98765,
+    );
+    final id = await repo.insertarEvaluacion(conCoordenadas);
+    final recuperada = await repo.evaluacionPorId(id);
+
+    expect(recuperada, isNotNull);
+    expect(recuperada!.tieneUbicacion, isTrue);
+    expect(recuperada.lat, closeTo(11.24712, 1e-9));
+    expect(recuperada.lng, closeTo(-72.98765, 1e-9));
+    expect(recuperada.ubicacionTexto, '11.24712, -72.98765');
+
+    // Sin coordenadas sigue siendo un tamizaje válido (GPS opcional).
+    final sinCoordenadas = Evaluacion(
+      ninoId: nino.id!,
+      fecha: DateTime.now(),
+      edadMeses: 12,
+      pesoKg: 9.5,
+      tallaCm: 75.0,
+      muacCm: 13.5,
+      edema: false,
+      zPesoTalla: 0.32,
+      clasificacion: 'VERDE',
+      color: 'verde',
+      observacion: 'Evaluación sin ubicación.',
+    );
+    final id2 = await repo.insertarEvaluacion(sinCoordenadas);
+    final recuperada2 = await repo.evaluacionPorId(id2);
+
+    expect(recuperada2!.tieneUbicacion, isFalse);
+    expect(recuperada2.lat, isNull);
+    expect(recuperada2.lng, isNull);
+    expect(recuperada2.ubicacionTexto, isNull);
+  });
+
+  test('la migración de v1 a v2 agrega lat/lng sin perder datos', () async {
+    final ruta = '${temporal.path}/migracion.db';
+
+    // Crea una base en versión 1 con el esquema ANTIGUO (sin lat/lng).
+    final dbV1 = await databaseFactory.openDatabase(
+      ruta,
+      options: OpenDatabaseOptions(
+        version: 1,
+        onCreate: (db, version) async {
+          await db.execute('''
+            CREATE TABLE evaluaciones (
+              id INTEGER PRIMARY KEY AUTOINCREMENT,
+              nino_id INTEGER NOT NULL,
+              fecha TEXT NOT NULL,
+              edad_meses INTEGER NOT NULL,
+              peso_kg REAL NOT NULL,
+              talla_cm REAL NOT NULL,
+              muac_cm REAL NOT NULL,
+              edema INTEGER NOT NULL DEFAULT 0,
+              z_peso_talla REAL NOT NULL,
+              clasificacion TEXT NOT NULL,
+              color TEXT NOT NULL,
+              observacion TEXT NOT NULL DEFAULT '',
+              sincronizado INTEGER NOT NULL DEFAULT 0
+            )
+          ''');
+          await db.execute('''
+            INSERT INTO evaluaciones
+              (nino_id, fecha, edad_meses, peso_kg, talla_cm, muac_cm, edema,
+               z_peso_talla, clasificacion, color, observacion, sincronizado)
+            VALUES (1, '2026-01-01T00:00:00.000', 12, 9.5, 75.0, 13.5, 0,
+              0.32, 'VERDE', 'verde', '', 0)
+          ''');
+        },
+      ),
+    );
+    await dbV1.close();
+
+    // Abre con el esquema actual (v2): dispara onUpgrade.
+    DbNutriLaGuajira.instance.configurarParaPruebas(
+      ruta: ruta,
+      omitirSemilla: true,
+    );
+    final db = await DbNutriLaGuajira.instance.bd;
+
+    final columnas = await db.rawQuery('PRAGMA table_info(evaluaciones)');
+    final nombres = columnas.map((fila) => fila['name']).toSet();
+    expect(nombres, containsAll(<String>['lat', 'lng']));
+
+    // La fila previa sobrevivió y las columnas nuevas quedan en NULL.
+    final fila = (await db.query('evaluaciones')).first;
+    expect(fila['clasificacion'], 'VERDE');
+    expect(fila['lat'], isNull);
+    expect(fila['lng'], isNull);
+  });
 }

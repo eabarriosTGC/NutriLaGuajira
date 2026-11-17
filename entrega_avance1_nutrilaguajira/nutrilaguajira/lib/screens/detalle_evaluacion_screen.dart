@@ -116,6 +116,11 @@ class DetalleEvaluacionScreen extends StatelessWidget {
                       icono: Icons.location_on_outlined,
                     ),
                     FilaDato(
+                      etiqueta: 'Ubicación',
+                      valor: evaluacion.ubicacionTexto ?? 'No capturada',
+                      icono: Icons.my_location,
+                    ),
+                    FilaDato(
                       etiqueta: 'Sincronizado',
                       valor: evaluacion.sincronizado
                           ? 'Sí'

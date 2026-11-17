@@ -80,8 +80,11 @@ class AcercaDeScreen extends StatelessWidget {
             vineta('Semáforo nutricional: verde, amarillo y rojo.'),
             vineta('Persistencia local en SQLite (funciona sin internet).'),
             vineta('Historial de evaluaciones con el color del semáforo.'),
+            vineta(
+              'Ubicación GPS opcional de la ranchería al guardar el tamizaje.',
+            ),
             titulo('¿Qué NO incluye todavía?'),
-            vineta('GPS y reportes georreferenciados (PDF/CSV).'),
+            vineta('Reportes georreferenciados (PDF/CSV).'),
             vineta('Envío de alertas por SMS.'),
             vineta('Sincronización con servidor o nube.'),
             vineta('Notificaciones push e iOS.'),
@@ -139,14 +142,17 @@ class AcercaDeScreen extends StatelessWidget {
             titulo('Privacidad'),
             parrafo(
               'Todos los datos quedan en la base SQLite del dispositivo. La app '
-              'no abre conexiones de red ni envía información a terceros. '
-              'Cualquier sincronización futura requerirá consentimiento y '
-              'medidas de protección de datos personales de menores.',
+              'no abre conexiones de red ni envía información a terceros. La '
+              'ubicación se captura solo si el usuario la solicita y queda '
+              'guardada localmente. Cualquier sincronización futura requerirá '
+              'consentimiento y medidas de protección de datos personales de '
+              'menores.',
             ),
             titulo('Tecnologías'),
             vineta('Flutter 3.x / Dart con Material 3.'),
             vineta('SQLite local con sqflite y path.'),
             vineta('intl para el formato de fechas.'),
+            vineta('geolocator para la captura opcional de GPS.'),
             titulo('Créditos'),
             parrafo(
               'Escuela de Ingeniería de Sistemas · Proyecto académico · '

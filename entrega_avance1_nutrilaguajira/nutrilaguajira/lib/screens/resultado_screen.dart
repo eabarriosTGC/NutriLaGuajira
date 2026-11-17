@@ -152,6 +152,11 @@ class ResultadoScreen extends StatelessWidget {
                       valor: evaluacion.comunidad ?? '—',
                       icono: Icons.location_on_outlined,
                     ),
+                    FilaDato(
+                      etiqueta: 'Ubicación',
+                      valor: evaluacion.ubicacionTexto ?? 'No capturada',
+                      icono: Icons.my_location,
+                    ),
                   ],
                 ),
               ),

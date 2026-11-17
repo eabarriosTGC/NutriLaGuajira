@@ -150,7 +150,9 @@ class _HomeScreenState extends State<HomeScreen> {
                 spacing: 10,
                 runSpacing: 10,
                 children: [
-                  ChipProximoSprint(etiqueta: 'GPS/Reportes: próximo sprint'),
+                  ChipProximoSprint(
+                    etiqueta: 'Reportes PDF/CSV: próximo sprint',
+                  ),
                   ChipProximoSprint(etiqueta: 'SMS: próximo sprint'),
                 ],
               ),

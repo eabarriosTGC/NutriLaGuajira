@@ -23,7 +23,7 @@ class DbNutriLaGuajira {
   static final DbNutriLaGuajira instance = DbNutriLaGuajira._();
 
   static const String nombreArchivo = 'nutrilaguajira.db';
-  static const int versionEsquema = 1;
+  static const int versionEsquema = 2;
 
   static const String tablaUsuarios = 'usuarios';
   static const String tablaNinos = 'ninos';
@@ -63,8 +63,22 @@ class DbNutriLaGuajira {
         version: versionEsquema,
         onConfigure: (db) => db.execute('PRAGMA foreign_keys = ON'),
         onCreate: _onCreate,
+        onUpgrade: _onUpgrade,
       ),
     );
+  }
+
+  /// Migraciones incrementales de esquema. Cada cambio de `versionEsquema`
+  /// agrega aqui un bloque `if (oldVersion < N)`.
+  ///
+  /// v1 -> v2: columnas `lat`/`lng` en `evaluaciones` (coordenadas de la
+  /// ranchería, opcionales). SQLite no permite DROP COLUMN antiguo ni ADD con
+  /// NOT NULL sin valor por defecto, por eso se agregan como REAL nullable.
+  Future<void> _onUpgrade(Database db, int oldVersion, int newVersion) async {
+    if (oldVersion < 2) {
+      await db.execute('ALTER TABLE $tablaEvaluaciones ADD COLUMN lat REAL');
+      await db.execute('ALTER TABLE $tablaEvaluaciones ADD COLUMN lng REAL');
+    }
   }
 
   Future<void> cerrar() async {
@@ -110,6 +124,8 @@ class DbNutriLaGuajira {
         color TEXT NOT NULL,
         observacion TEXT NOT NULL DEFAULT '',
         sincronizado INTEGER NOT NULL DEFAULT 0,
+        lat REAL,
+        lng REAL,
         FOREIGN KEY (nino_id) REFERENCES $tablaNinos (id) ON DELETE CASCADE
       )
       ''',

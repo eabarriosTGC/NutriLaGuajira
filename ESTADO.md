@@ -1,7 +1,7 @@
 # Estado del proyecto — NutriLaGuajira
 
 Documento de traspaso para retomar el trabajo sin reconstruir contexto.
-Última actualización: **avance 1 entregado**.
+Última actualización: **2026-11-17** (verificación de estado y traspaso al Sprint 2).
 
 ---
 
@@ -11,14 +11,17 @@ Documento de traspaso para retomar el trabajo sin reconstruir contexto.
 |---|---|
 | Repo | https://github.com/eabarriosTGC/NutriLaGuajira (público, MIT) |
 | Rama | `main` |
-| Último commit del avance | `b852040` (docs: guía COMO_PROBAR.md) |
+| HEAD actual | `8d942a5` (docs: agregar ESTADO.md) |
+| Último commit de *contenido* del avance | `b852040` (docs: guía COMO_PROBAR.md) |
 | Tag / release | `v0.1.0-avance1` con `app-debug.apk` adjunto |
-| Estado | **Avance 1 cerrado y verificado**: `flutter analyze` limpio, 45/45 tests, prueba en emulador con capturas |
+| ⚠️ Commit al que apunta el tag | `4bf5c87` (feat: entrega avance 1) — el APK del release se compiló **antes** de `b38b896` (dart format) y de los commits de docs posteriores |
+| Estado | **Avance 1 cerrado y verificado** + **Sprint 2 en curso**: GPS/coordenadas de la ranchería ya implementado (migración de esquema a v2, captura opcional con `geolocator`); `flutter analyze` limpio, 49/49 tests |
 
 Alcance entregado: login local, registro de infantes/tutores, evaluación
 antropométrica, Z-score Peso/Talla con tabla DEMO, semáforo, SQLite offline,
-historial y detalle. GPS, reportes PDF/CSV, SMS y sincronización **no** están
-implementados (aparecen deshabilitados en el menú).
+historial y detalle, y **captura opcional de GPS** (lat/lng de la ranchería).
+Reportes PDF/CSV, SMS y sincronización **no** están implementados (aparecen
+deshabilitados en el menú).
 
 ---
 
@@ -29,7 +32,7 @@ git clone https://github.com/eabarriosTGC/NutriLaGuajira.git
 cd NutriLaGuajira/entrega_avance1_nutrilaguajira/nutrilaguajira
 
 flutter pub get
-flutter test        # debe dar 45/45 antes de tocar nada
+flutter test        # debe dar 49/49 antes de tocar nada
 flutter analyze     # debe estar limpio
 dart format --output=none --set-exit-if-changed lib test tool
 
@@ -66,11 +69,12 @@ lib/
     fechas.dart             formato dd/MM/yyyy (intl)
     referencias_csv.dart    parser del CSV (Dart puro)
     referencias_loader.dart acceso al asset
+    localizacion_service.dart GPS opcional (wrapper de geolocator) + Coordenada
   screens/                  login, home, seleccion, nino_form, evaluacion_form,
                             resultado, historial, detalle, acerca_de
   theme/                    tema Material 3 + colores del semáforo
   widgets/componentes.dart  botones, chips, PanelVacio, FilaDato
-test/                       45 pruebas (motor, validadores, widget, SQLite real)
+test/                       49 pruebas (motor, validadores, widget, SQLite real, migración)
 tool/calcular_demo.dart     recalcula los casos semilla con el motor real
 ```
 
@@ -95,7 +99,7 @@ tool/calcular_demo.dart     recalcula los casos semilla con el motor real
 
 | # | Tarea | Notas de arranque |
 |---|---|---|
-| 1 | **GPS y coordenadas de la ranchería** | nueva columna `lat`/`lng` en `evaluaciones` → subir `versionEsquema` a 2 y migrar en `onUpgrade`; permisos en `AndroidManifest`; pedido en runtime |
+| 1 | ~~GPS y coordenadas de la ranchería~~ ✅ **hecho** | columna `lat`/`lng` en `evaluaciones` (esquema v2, `onUpgrade`); permisos en `AndroidManifest`; captura opcional con botón en el formulario (`localizacion_service.dart`, `geolocator`) |
 | 2 | **Reportes PDF/CSV** | generar desde `historial()`; CSV con `intl`; PDF con paquete local (evitar servicios externos); botón en detalle |
 | 3 | **Alertas por SMS** | sin backend: `intent` de SMS con texto prellenado (no envío silencioso); requiere consentimiento explícito |
 | 4 | **Sincronización offline-first** | `sincronizado` ya existe en el esquema (siempre 0); definir backend, resolución de conflictos y cifrado antes de mover datos de menores |
@@ -119,14 +123,17 @@ tool/calcular_demo.dart     recalcula los casos semilla con el motor real
 ## 6. Cómo se verificó (repetir antes de cada entrega)
 
 1. `flutter analyze` → sin observaciones.
-2. `flutter test` → 45/45.
+2. `flutter test` → 49/49.
 3. `dart format --set-exit-if-changed` → sin cambios pendientes.
 4. Emulador: login → registrar infante → evaluación → semáforo → cerrar app →
    reabrir → historial intacto.
 5. Clonar el repo en `/tmp` y correr `flutter test` desde el clon (confirma que
    no hay archivos que existan solo en la máquina local).
 
-Evidencia visual en `screenshots/` (índice en `screenshots/README.md`).
+Evidencia visual en `entrega_avance1_nutrilaguajira/screenshots/` (índice en
+`screenshots/README.md`; el set del Sprint 2 con GPS está en
+`screenshots/sprint2_gps/` y el resumen para el informe en
+`entrega_avance1_nutrilaguajira/EVIDENCIAS_SPRINT2.md`).
 
 ---
 

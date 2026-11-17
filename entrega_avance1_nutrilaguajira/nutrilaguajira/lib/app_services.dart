@@ -1,6 +1,7 @@
 import 'data/db_nutrilaguajira.dart';
 import 'data/models/nino.dart';
 import 'data/repositorio.dart';
+import 'services/localizacion_service.dart';
 import 'services/nutricion_service.dart';
 
 /// Localizador minimo de dependencias (sin paquetes externos).
@@ -11,6 +12,9 @@ class AppServices {
 
   static late final Repositorio repo;
   static late final NutricionService nutricion;
+
+  /// Servicio de GPS. Es mutable para que las pruebas puedan inyectar un stub.
+  static LocalizacionService localizacion = LocalizacionService();
 
   static bool _iniciado = false;
 

@@ -6,6 +6,7 @@ import '../data/models/evaluacion.dart';
 import '../data/models/nino.dart';
 import '../services/edad.dart';
 import '../services/fechas.dart';
+import '../services/localizacion_service.dart';
 import '../services/validadores.dart';
 import 'resultado_screen.dart';
 
@@ -33,6 +34,8 @@ class _EvaluacionFormScreenState extends State<EvaluacionFormScreen> {
 
   bool _edema = false;
   bool _guardando = false;
+  bool _obteniendoGps = false;
+  Coordenada? _coordenada;
 
   DateTime get _ahora => widget.ahora ?? DateTime.now();
 
@@ -53,6 +56,28 @@ class _EvaluacionFormScreenState extends State<EvaluacionFormScreen> {
       ) ==
       null;
 
+  /// Intenta leer la coordenada actual. De mejor esfuerzo: si no hay señal o
+  /// el permiso está denegado, devuelve null sin lanzar excepciones.
+  Future<Coordenada?> _leerUbicacion() =>
+      AppServices.localizacion.obtenerCoordenada();
+
+  Future<void> _obtenerUbicacion() async {
+    setState(() => _obteniendoGps = true);
+    try {
+      final coordenada = await _leerUbicacion();
+      if (!mounted) return;
+      setState(() => _coordenada = coordenada);
+      if (coordenada == null) {
+        _avisar(
+          'No se pudo obtener la ubicación. El tamizaje se guardará sin '
+          'coordenadas.',
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _obteniendoGps = false);
+    }
+  }
+
   Future<void> _guardar() async {
     if (!_formKey.currentState!.validate()) return;
 
@@ -70,6 +95,10 @@ class _EvaluacionFormScreenState extends State<EvaluacionFormScreen> {
 
     setState(() => _guardando = true);
     try {
+      // La ubicación se captura de forma explícita con el botón "Obtener
+      // ubicación". Aquí solo se adjunta la ya capturada (o nada, si no hay).
+      final coordenada = _coordenada;
+
       final resultado = AppServices.nutricion.evaluar(
         sexo: widget.nino.sexo,
         edadMeses: _edadMeses,
@@ -95,6 +124,8 @@ class _EvaluacionFormScreenState extends State<EvaluacionFormScreen> {
         // del JOIN con `ninos`; aqui el registro es nuevo, no pasó por SQL).
         ninoNombre: widget.nino.nombreCompleto,
         comunidad: widget.nino.comunidad,
+        lat: coordenada?.lat,
+        lng: coordenada?.lng,
       );
 
       final id = await AppServices.repo.insertarEvaluacion(evaluacion);
@@ -262,6 +293,61 @@ class _EvaluacionFormScreenState extends State<EvaluacionFormScreen> {
                           'Se registrará con la fecha y hora actual: '
                           '${Fechas.conHora(_ahora)}',
                           style: TextStyle(color: esquema.onSurfaceVariant),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              const SizedBox(height: 18),
+              Card(
+                child: Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Icon(Icons.my_location, color: esquema.primary),
+                          const SizedBox(width: 10),
+                          const Expanded(
+                            child: Text(
+                              'Ubicación de la ranchería',
+                              style: TextStyle(fontWeight: FontWeight.w700),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 10),
+                      Text(
+                        _coordenada == null
+                            ? 'Sin coordenadas. Pulse el botón para capturar '
+                                  'con GPS.'
+                            : 'Latitud ${_coordenada!.lat.toStringAsFixed(5)} · '
+                                  'Longitud ${_coordenada!.lng.toStringAsFixed(5)}',
+                        style: TextStyle(color: esquema.onSurfaceVariant),
+                      ),
+                      const SizedBox(height: 12),
+                      OutlinedButton.icon(
+                        key: const Key('boton-gps'),
+                        onPressed: (_obteniendoGps || _guardando)
+                            ? null
+                            : _obtenerUbicacion,
+                        icon: _obteniendoGps
+                            ? const SizedBox(
+                                height: 18,
+                                width: 18,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                ),
+                              )
+                            : const Icon(Icons.gps_fixed),
+                        label: Text(
+                          _obteniendoGps
+                              ? 'Obteniendo ubicación...'
+                              : _coordenada == null
+                              ? 'Obtener ubicación'
+                              : 'Actualizar ubicación',
                         ),
                       ),
                     ],

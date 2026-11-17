@@ -1,8 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:nutrilaguajira/app_services.dart';
 import 'package:nutrilaguajira/data/models/nino.dart';
 import 'package:nutrilaguajira/screens/evaluacion_form_screen.dart';
+import 'package:nutrilaguajira/services/localizacion_service.dart';
 import 'package:nutrilaguajira/theme/tema.dart';
+
+/// Stub de localización para no depender del GPS real en las pruebas.
+class _LocalizacionFalsa extends LocalizacionService {
+  _LocalizacionFalsa(this.resultado);
+
+  final Coordenada? resultado;
+
+  @override
+  Future<Coordenada?> obtenerCoordenada() async => resultado;
+}
 
 /// Prueba de widget de las validaciones del formulario de evaluación.
 ///
@@ -113,5 +125,46 @@ void main() {
     // formulario no marque los campos como inválidos).
     expect(find.textContaining('debe estar entre'), findsNothing);
     expect(find.textContaining('es obligatorio'), findsNothing);
+  });
+
+  testWidgets('captura la ubicación GPS y la muestra en el formulario', (
+    tester,
+  ) async {
+    AppServices.localizacion = _LocalizacionFalsa(
+      const Coordenada(lat: 11.24712, lng: -72.98765),
+    );
+    addTearDown(() => AppServices.localizacion = LocalizacionService());
+
+    await montar(tester, crearNino(mesesDeEdad: 18));
+
+    // Estado inicial: sin coordenadas.
+    expect(find.textContaining('Sin coordenadas'), findsOneWidget);
+
+    await tester.ensureVisible(find.byKey(const Key('boton-gps')));
+    await tester.tap(find.byKey(const Key('boton-gps')));
+    await tester.pumpAndSettle();
+
+    expect(find.textContaining('Latitud 11.24712'), findsOneWidget);
+    expect(find.textContaining('Longitud -72.98765'), findsOneWidget);
+  });
+
+  testWidgets('informa cuando no hay señal y sigue permitiendo guardar', (
+    tester,
+  ) async {
+    AppServices.localizacion = _LocalizacionFalsa(null);
+    addTearDown(() => AppServices.localizacion = LocalizacionService());
+
+    await montar(tester, crearNino(mesesDeEdad: 18));
+
+    await tester.ensureVisible(find.byKey(const Key('boton-gps')));
+    await tester.tap(find.byKey(const Key('boton-gps')));
+    await tester.pumpAndSettle();
+
+    expect(
+      find.textContaining('No se pudo obtener la ubicación'),
+      findsOneWidget,
+    );
+    // El formulario sigue operativo y sin coordenadas.
+    expect(find.textContaining('Sin coordenadas'), findsOneWidget);
   });
 }

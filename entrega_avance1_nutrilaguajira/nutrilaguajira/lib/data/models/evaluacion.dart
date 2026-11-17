@@ -19,6 +19,8 @@ class Evaluacion {
     this.sincronizado = false,
     this.ninoNombre,
     this.comunidad,
+    this.lat,
+    this.lng,
   });
 
   final int? id;
@@ -41,6 +43,19 @@ class Evaluacion {
   final String? ninoNombre;
   final String? comunidad;
 
+  /// Coordenadas de la ranchería en el momento del tamizaje. Son opcionales:
+  /// en zonas sin señal GPS quedan en `null` y el tamizaje es igualmente válido.
+  final double? lat;
+  final double? lng;
+
+  /// true si esta evaluación capturó coordenadas.
+  bool get tieneUbicacion => lat != null && lng != null;
+
+  /// Coordenadas legibles ('12.34567, -71.23456') o null si no hay ubicación.
+  String? get ubicacionTexto => tieneUbicacion
+      ? '${lat!.toStringAsFixed(5)}, ${lng!.toStringAsFixed(5)}'
+      : null;
+
   Map<String, Object?> toMap() => {
     if (id != null) 'id': id,
     'nino_id': ninoId,
@@ -55,6 +70,8 @@ class Evaluacion {
     'color': color,
     'observacion': observacion,
     'sincronizado': sincronizado ? 1 : 0,
+    'lat': lat,
+    'lng': lng,
   };
 
   /// Copia con el id asignado por SQLite (la insercion devuelve el rowid).
@@ -74,6 +91,8 @@ class Evaluacion {
     sincronizado: sincronizado,
     ninoNombre: ninoNombre,
     comunidad: comunidad,
+    lat: lat,
+    lng: lng,
   );
 
   factory Evaluacion.fromMap(Map<String, Object?> map) => Evaluacion(
@@ -92,5 +111,7 @@ class Evaluacion {
     sincronizado: ((map['sincronizado'] as num?)?.toInt() ?? 0) == 1,
     ninoNombre: map['nino_nombre'] as String?,
     comunidad: map['comunidad'] as String?,
+    lat: (map['lat'] as num?)?.toDouble(),
+    lng: (map['lng'] as num?)?.toDouble(),
   );
 }
