@@ -34,3 +34,13 @@ registrados en vivo).
   comportamiento esperado (un infante acumula historial de visitas).
 - La fila "Yuliana Andrea · Z 0.63 · VERDE" corresponde a un tamizaje real
   hecho durante las pruebas manuales; no forma parte de los datos semilla.
+
+---
+
+## Sprint 2 — Georreferenciación GPS
+
+Las capturas del módulo de **coordenadas GPS de la ranchería** (formulario con
+captura, resultado y detalle con ubicación) están en
+[`sprint2_gps/`](sprint2_gps/README.md), con su propio índice y la
+correspondencia con las evidencias por objetivo. Documento de apoyo:
+[`../EVIDENCIAS_SPRINT2.md`](../EVIDENCIAS_SPRINT2.md).
