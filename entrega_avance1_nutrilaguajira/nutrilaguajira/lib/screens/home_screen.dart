@@ -152,7 +152,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 runSpacing: 10,
                 children: [
                   ActionChip(
-                    label: const Text('Reportes CSV · PDF próximo bloque'),
+                    label: const Text('Reportes CSV/PDF'),
                     onPressed: () => Navigator.of(context).push(
                       MaterialPageRoute<void>(
                         builder: (_) => const ReportesScreen(),
