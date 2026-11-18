@@ -6,6 +6,7 @@ import 'models/evaluacion.dart';
 import 'models/evaluacion_reporte.dart';
 import 'models/nino.dart';
 import 'models/referencia_who.dart';
+import 'models/resumen_zona.dart';
 
 /// Consultas de la app sobre SQLite. Toda la persistencia pasa por aqui.
 class Repositorio {
@@ -170,6 +171,46 @@ class Repositorio {
           ),
         ) ??
         0;
+  }
+
+  // -------------------------------------------------------- zonas en riesgo
+  /// Consolidado por ranchería, ordenado por criticidad (rojos DESC).
+  ///
+  /// [desde] es opcional; si se indica, solo cuenta evaluaciones desde esa
+  /// fecha. Para el último caso ROJO se devuelven sus coordenadas exactas (no
+  /// un promedio), que pueden ser null si ese tamizaje no capturó GPS.
+  Future<List<ResumenZona>> resumenPorRancheria({DateTime? desde}) async {
+    final base = await _base;
+    final filas = await base.rawQuery('''
+      SELECT n.comunidad AS rancheria,
+             SUM(CASE WHEN e.clasificacion = 'ROJO' THEN 1 ELSE 0 END) AS rojos,
+             SUM(CASE WHEN e.clasificacion = 'AMARILLO' THEN 1 ELSE 0 END)
+               AS amarillos,
+             SUM(CASE WHEN e.clasificacion = 'VERDE' THEN 1 ELSE 0 END)
+               AS verdes,
+             COUNT(*) AS total,
+             MAX(e.fecha) AS ultima,
+             (SELECT e2.lat
+                FROM ${DbNutriLaGuajira.tablaEvaluaciones} e2
+                JOIN ${DbNutriLaGuajira.tablaNinos} n2 ON n2.id = e2.nino_id
+               WHERE n2.comunidad = n.comunidad
+                 AND e2.clasificacion = 'ROJO'
+               ORDER BY e2.fecha DESC, e2.id DESC
+               LIMIT 1) AS lat_critico,
+             (SELECT e2.lng
+                FROM ${DbNutriLaGuajira.tablaEvaluaciones} e2
+                JOIN ${DbNutriLaGuajira.tablaNinos} n2 ON n2.id = e2.nino_id
+               WHERE n2.comunidad = n.comunidad
+                 AND e2.clasificacion = 'ROJO'
+               ORDER BY e2.fecha DESC, e2.id DESC
+               LIMIT 1) AS lng_critico
+      FROM ${DbNutriLaGuajira.tablaEvaluaciones} e
+      JOIN ${DbNutriLaGuajira.tablaNinos} n ON n.id = e.nino_id
+      ${desde == null ? '' : 'WHERE e.fecha >= ?'}
+      GROUP BY n.comunidad
+      ORDER BY rojos DESC, amarillos DESC, total DESC
+    ''', desde == null ? null : [desde.toIso8601String()]);
+    return filas.map(ResumenZona.fromMap).toList();
   }
 
   // ----------------------------------------------------------------- alertas
