@@ -6,59 +6,103 @@ desnutrición infantil en comunidades rurales dispersas de La Guajira, Colombia.
 Proyecto académico — Escuela de Ingeniería de Sistemas. Metodología Scrum
 (3 sprints).
 
-## Avance 1 (entregado)
+## Estado: Sprints 1, 2 y 3 completos
 
-> **NutriLaGuajira – Avance 1: Tamizaje rápido y semáforo nutricional offline**
+| Sprint | Entregado |
+|---|---|
+| **1** | Login local, registro de infantes/tutores, formulario antropométrico, persistencia SQLite offline e historial. |
+| **2** | Z-score Peso/Talla con tabla DEMO, semáforo (verde/amarillo/rojo), captura **opcional de GPS** (alta precisión + fallback offline) y detalle georreferenciado. |
+| **3** | **Reportes CSV/PDF** con filtros, **alertas SMS** con cola local y reintento, y **zonas en riesgo** consolidadas por ranchería. |
 
-Prototipo funcional en **Flutter + SQLite** que permite iniciar sesión
-localmente, registrar infantes y tutores, capturar peso/talla/MUAC/edema,
-calcular el Z-score Peso/Talla con una tabla de referencia **DEMO**, mostrar un
-semáforo (verde / amarillo / rojo), guardar todo en el dispositivo y consultar
-el historial. Funciona 100 % sin internet.
+**Calidad actual:** `flutter test` **85/85** · `flutter analyze` **0 issues** ·
+`dart format` sin cambios pendientes.
 
-GPS, reportes PDF/CSV, SMS y sincronización quedan para el próximo sprint y
-aparecen deshabilitados en la interfaz.
+## Funcionalidades
 
-### Entregables
+- **Login local** (demo `promotor` / `demo123`).
+- **Registro** de infantes menores de 5 años y su tutor.
+- **Evaluación antropométrica**: peso, talla, MUAC y edema bilateral.
+- **Z-score Peso/Talla** con tabla DEMO y **semáforo** verde/amarillo/rojo.
+- **Captura opcional de GPS** de la ranchería (lat/lng).
+- **Historial y detalle** de tamizajes.
+- **Reportes CSV**: filtros por fecha/comunidad/estado, UTF-8 con BOM, escape
+  RFC 4180, guardado en el sandbox y acciones Compartir/Abrir.
+- **Reportes PDF**: encabezado con filtros aplicados, resumen por semáforo,
+  casos ROJO con coordenadas, pie con la nota de T/E y P/E y vista previa.
+- **Alertas SMS**: cola local (`alertas_pendientes`), encolado automático al
+  registrar una evaluación ROJA, envío por intent `sms:?body=` (sin `SEND_SMS`)
+  y reintento de fallidas.
+- **Zonas en riesgo**: consolidado por ranchería ordenado por criticidad, con
+  detalle de los casos ROJO y copia de coordenadas.
+- **100 % sin internet** (los reportes y la cola de alertas son locales).
 
-Todo está en la carpeta [`entrega_avance1_nutrilaguajira/`](entrega_avance1_nutrilaguajira):
+## Descargar el APK (Sprint 3)
 
-- `README.md` — descripción, requisitos, cómo ejecutar, cálculo y limitaciones
-- `informe_avance1.md` — informe del avance
-- `demo_script.md` — guion de exposición de 3 minutos
-- `screenshots/` — capturas de la app funcionando
-- `assets/who_referencia_demo.csv` — tabla de referencia DEMO
-- `nutrilaguajira/` — proyecto Flutter completo
-- `app-debug.apk` — APK de depuración (también adjunto en la sección *Releases*)
+> Release: **`v0.3.0-sprint3`**
 
-### Probar el APK (para el equipo)
+<https://github.com/eabarriosTGC/NutriLaGuajira/releases/download/v0.3.0-sprint3/app-debug.apk>
 
-Guía paso a paso en **[`COMO_PROBAR.md`](COMO_PROBAR.md)**: instalación,
-credenciales, los valores exactos de cada caso (verde / amarillo / rojo),
-validaciones, prueba de persistencia y plantilla para reportar hallazgos.
+Requiere **Android 7.0 (API 24) o superior**. Es un **APK universal**
+(arm64-v8a, armeabi-v7a y x86_64) firmado con la clave de *debug*: si Play
+Protect avisa al instalar, es esperado → "Instalar de todas formas".
 
-El estado del proyecto, las deudas conocidas y el plan del Sprint 2 están en
-**[`ESTADO.md`](ESTADO.md)**.
+> El APK **no** se commitea (pesa cientos de MB): se descarga desde la sección
+> *Releases* del repositorio.
 
-Descarga directa del APK:
-<https://github.com/eabarriosTGC/NutriLaGuajira/releases/download/v0.1.0-avance1/app-debug.apk>
-
-Requiere **Android 7.0 (API 24) o superior**. Es un APK universal de 166 MB
-(incluye arm64, armv7 y x86_64), firmado con la clave de *debug*: si Play
-Protect avisa, es esperado → "Instalar de todas formas".
-
-### Inicio rápido
+## Inicio rápido
 
 ```bash
 cd entrega_avance1_nutrilaguajira/nutrilaguajira
 flutter pub get
-flutter test      # 45 pruebas automatizadas
+flutter test      # 85/85
+flutter analyze   # 0 issues
 flutter run       # con un dispositivo o emulador Android conectado
 ```
 
 Credenciales demo: usuario `promotor`, contraseña `demo123`.
 
-### Aviso
+## Documentación y evidencias
+
+- [`ESTADO.md`](ESTADO.md) — estado del proyecto, deudas técnicas y plan del Sprint 4.
+- [`COMO_PROBAR.md`](COMO_PROBAR.md) — guía paso a paso para probar el APK.
+- [`entrega_avance1_nutrilaguajira/EVIDENCIAS_SPRINT2.md`](entrega_avance1_nutrilaguajira/EVIDENCIAS_SPRINT2.md) — evidencias del GPS.
+- [`entrega_avance1_nutrilaguajira/EVIDENCIAS_SPRINT3.md`](entrega_avance1_nutrilaguajira/EVIDENCIAS_SPRINT3.md) — resumen 6.1 y evidencias 6.2 del Sprint 3.
+- [`entrega_avance1_nutrilaguajira/screenshots/`](entrega_avance1_nutrilaguajira/screenshots/) — capturas (`sprint2_gps/` y `sprint3_reportes/`).
+- [`entrega_avance1_nutrilaguajira/`](entrega_avance1_nutrilaguajira/) — informe, guion de demo y proyecto Flutter completo.
+
+## Estructura del repositorio
+
+```
+README.md
+ESTADO.md                       traspaso: estado, deudas y plan
+COMO_PROBAR.md                  guía de prueba del APK
+entrega_avance1_nutrilaguajira/
+  EVIDENCIAS_SPRINT2.md         evidencias GPS
+  EVIDENCIAS_SPRINT3.md         evidencias reportes/alertas/zonas
+  informe_avance1.md            informe del avance
+  demo_script.md                guion de exposición
+  screenshots/                  capturas reales de la app
+  nutrilaguajira/               proyecto Flutter (lib/, test/, assets/)
+```
+
+## Limitaciones conocidas (honestas)
+
+- El cálculo cubre **solo Peso/Talla**; **Talla/Edad y Peso/Edad** quedan para el
+  Sprint 4 (requieren tablas OMS por edad + motor + migración).
+- La **sincronización por API** no está implementada: `SincronizacionStrategy`
+  es la interfaz preparada; hoy solo existe `SmsIntentStrategy`.
+- **SMS sin destinatario** por diseño: el brigadista elige el destinatario en su
+  app de mensajes. No se usa `SEND_SMS` ni `SharedPreferences`.
+- La tabla de referencia es **DEMO** (no las tablas OMS completas); la validación
+  clínica final usará las tablas OMS y la Resolución 2465/2016 y 115/2026.
+- La **validación en campo y la capacitación** se ejecutan en **2026-2** según el
+  plan de trabajo.
+- El APK es **debug** (clave de debug). Para distribución real falta keystore +
+  `--release` + `--split-per-abi`.
+- No hay cifrado local: los datos de menores están en SQLite en claro (aceptable
+  para un prototipo académico, no para producción).
+
+## Aviso
 
 Prototipo académico. **No sustituye diagnóstico médico.** Las tablas de
 referencia están en modo demostración; la validación clínica final usará las
