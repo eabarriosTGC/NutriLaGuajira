@@ -15,8 +15,8 @@ Documento de traspaso para retomar el trabajo sin reconstruir contexto.
 |---|---|
 | Repo | https://github.com/eabarriosTGC/NutriLaGuajira (público, MIT) |
 | Rama | `main` |
-| HEAD | commit de cierre del Sprint 3 (docs) — ver `git log -3` |
-| Tag / release | `v0.1.0-avance1` con `app-debug.apk` adjunto (histórico) |
+| HEAD | `9aba19f` (docs: README con Sprints 1–3 y APK) |
+| Tag / release | `v0.3.0-sprint3` (actual) y `v0.1.0-avance1` (histórico), ambos con `app-debug.apk` adjunto |
 | Estado | **Sprint 1 + Sprint 2 + Sprint 3 completos**: `flutter analyze` limpio, **85/85 tests**, formato limpio |
 | Evidencias | `entrega_avance1_nutrilaguajira/EVIDENCIAS_SPRINT{2,3}.md` + `screenshots/` |
 
