@@ -129,6 +129,25 @@ class _EvaluacionFormScreenState extends State<EvaluacionFormScreen> {
       );
 
       final id = await AppServices.repo.insertarEvaluacion(evaluacion);
+
+      // Best-effort (RF-10): si la evaluación es ROJA, encolar una alerta.
+      // Es una inserción local, no un envío; si falla, el dato clínico ya
+      // quedó guardado y no se interrumpe el flujo.
+      try {
+        await AppServices.alertas.encolarDesdeEvaluacion(
+          idInfante: widget.nino.id!,
+          idEvaluacion: id,
+          clasificacionNutricional: evaluacion.clasificacion,
+          nombresCompletos: widget.nino.nombreCompleto,
+          rancheria: widget.nino.comunidad,
+          fechaEvaluacion: evaluacion.fecha,
+          latitud: evaluacion.lat,
+          longitud: evaluacion.lng,
+        );
+      } catch (_) {
+        // La alerta es best-effort; el tamizaje ya está persistido.
+      }
+
       if (!mounted) return;
 
       Navigator.of(context).pushReplacement(

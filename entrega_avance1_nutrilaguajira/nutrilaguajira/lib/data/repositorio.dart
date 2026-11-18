@@ -1,6 +1,7 @@
 import 'package:sqflite/sqflite.dart';
 
 import 'db_nutrilaguajira.dart';
+import 'models/alerta_pendiente.dart';
 import 'models/evaluacion.dart';
 import 'models/evaluacion_reporte.dart';
 import 'models/nino.dart';
@@ -169,6 +170,43 @@ class Repositorio {
           ),
         ) ??
         0;
+  }
+
+  // ----------------------------------------------------------------- alertas
+  Future<int> insertarAlerta(AlertaPendiente alerta) async {
+    final base = await _base;
+    return base.insert(DbNutriLaGuajira.tablaAlertas, alerta.toMap());
+  }
+
+  /// Alertas ordenadas por fecha de creación descendente, con el nombre del
+  /// infante y su ranchería (JOIN), igual que hace `historial()` con las
+  /// evaluaciones.
+  Future<List<AlertaPendiente>> listarAlertas({EstadoAlerta? estado}) async {
+    final base = await _base;
+    final filas = await base.rawQuery('''
+      SELECT a.*,
+             n.nombres || ' ' || n.apellidos AS nombre_infante,
+             n.comunidad AS rancheria
+      FROM ${DbNutriLaGuajira.tablaAlertas} a
+      LEFT JOIN ${DbNutriLaGuajira.tablaNinos} n ON n.id = a.id_infante
+      ${estado == null ? '' : 'WHERE a.estado = ?'}
+      ORDER BY a.fecha_creacion DESC, a.id DESC
+    ''', estado == null ? null : [estado.clave]);
+    return filas.map(AlertaPendiente.fromMap).toList();
+  }
+
+  Future<int> actualizarEstadoAlerta(
+    int id,
+    EstadoAlerta estado, {
+    String? fechaEnvio,
+  }) async {
+    final base = await _base;
+    return base.update(
+      DbNutriLaGuajira.tablaAlertas,
+      <String, Object?>{'estado': estado.clave, 'fecha_envio': ?fechaEnvio},
+      where: 'id = ?',
+      whereArgs: [id],
+    );
   }
 
   // ------------------------------------------------------------- referencias

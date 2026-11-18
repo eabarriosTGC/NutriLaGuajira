@@ -1,8 +1,10 @@
 import 'data/db_nutrilaguajira.dart';
 import 'data/models/nino.dart';
 import 'data/repositorio.dart';
+import 'services/alerta_service.dart';
 import 'services/localizacion_service.dart';
 import 'services/nutricion_service.dart';
+import 'services/sms_intent_strategy.dart';
 
 /// Localizador minimo de dependencias (sin paquetes externos).
 ///
@@ -16,6 +18,9 @@ class AppServices {
   /// Servicio de GPS. Es mutable para que las pruebas puedan inyectar un stub.
   static LocalizacionService localizacion = LocalizacionService();
 
+  /// Cola y envío de alertas (RF-10).
+  static late final AlertaService alertas;
+
   static bool _iniciado = false;
 
   static Future<void> init() async {
@@ -25,6 +30,7 @@ class AppServices {
     // de modo que reemplazarla no requiere tocar la logica.
     final referencias = await repo.referencias();
     nutricion = NutricionService(referencias);
+    alertas = AlertaService(repo: repo, estrategia: SmsIntentStrategy());
     _iniciado = true;
   }
 

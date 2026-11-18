@@ -23,12 +23,13 @@ class DbNutriLaGuajira {
   static final DbNutriLaGuajira instance = DbNutriLaGuajira._();
 
   static const String nombreArchivo = 'nutrilaguajira.db';
-  static const int versionEsquema = 2;
+  static const int versionEsquema = 3;
 
   static const String tablaUsuarios = 'usuarios';
   static const String tablaNinos = 'ninos';
   static const String tablaEvaluaciones = 'evaluaciones';
   static const String tablaReferencias = 'who_referencia_demo';
+  static const String tablaAlertas = 'alertas_pendientes';
 
   Database? _db;
   String? _rutaOverride;
@@ -74,12 +75,43 @@ class DbNutriLaGuajira {
   /// v1 -> v2: columnas `lat`/`lng` en `evaluaciones` (coordenadas de la
   /// ranchería, opcionales). SQLite no permite DROP COLUMN antiguo ni ADD con
   /// NOT NULL sin valor por defecto, por eso se agregan como REAL nullable.
+  ///
+  /// v2 -> v3: tabla `alertas_pendientes` (RF-10). No toca datos existentes.
   Future<void> _onUpgrade(Database db, int oldVersion, int newVersion) async {
     if (oldVersion < 2) {
       await db.execute('ALTER TABLE $tablaEvaluaciones ADD COLUMN lat REAL');
       await db.execute('ALTER TABLE $tablaEvaluaciones ADD COLUMN lng REAL');
     }
+    if (oldVersion < 3) {
+      await db.execute(_crearTablaAlertas);
+      await db.execute(
+        'CREATE INDEX idx_alerta_estado ON $tablaAlertas (estado)',
+      );
+      await db.execute(
+        'CREATE INDEX idx_alerta_fecha ON $tablaAlertas (fecha_creacion DESC)',
+      );
+    }
   }
+
+  /// DDL de `alertas_pendientes`, compartido por `onCreate` y `onUpgrade`.
+  static const String _crearTablaAlertas =
+      '''
+    CREATE TABLE $tablaAlertas (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      id_infante INTEGER NOT NULL,
+      id_evaluacion INTEGER NOT NULL,
+      severidad TEXT NOT NULL,
+      latitud REAL,
+      longitud REAL,
+      fecha_creacion TEXT NOT NULL,
+      estado TEXT NOT NULL DEFAULT 'PENDIENTE',
+      mensaje TEXT NOT NULL,
+      fecha_envio TEXT,
+      FOREIGN KEY (id_infante) REFERENCES $tablaNinos (id) ON DELETE CASCADE,
+      FOREIGN KEY (id_evaluacion) REFERENCES $tablaEvaluaciones (id)
+        ON DELETE CASCADE
+    )
+  ''';
 
   Future<void> cerrar() async {
     await _db?.close();
@@ -141,6 +173,9 @@ class DbNutriLaGuajira {
       ''',
       'CREATE INDEX idx_eval_nino ON $tablaEvaluaciones (nino_id)',
       'CREATE INDEX idx_eval_fecha ON $tablaEvaluaciones (fecha DESC)',
+      _crearTablaAlertas,
+      'CREATE INDEX idx_alerta_estado ON $tablaAlertas (estado)',
+      'CREATE INDEX idx_alerta_fecha ON $tablaAlertas (fecha_creacion DESC)',
     ];
 
     for (final sentencia in batch) {
