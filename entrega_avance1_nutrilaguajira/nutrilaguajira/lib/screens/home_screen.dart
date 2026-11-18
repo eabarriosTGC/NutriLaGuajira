@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../app_services.dart';
 import '../widgets/componentes.dart';
 import 'acerca_de_screen.dart';
+import 'alertas_screen.dart';
 import 'historial_screen.dart';
 import 'login_screen.dart';
 import 'reportes_screen.dart';
@@ -159,7 +160,14 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                     ),
                   ),
-                  const ChipProximoSprint(etiqueta: 'SMS: próximo sprint'),
+                  ActionChip(
+                    label: const Text('Alertas SMS'),
+                    onPressed: () => Navigator.of(context).push(
+                      MaterialPageRoute<void>(
+                        builder: (_) => const AlertasScreen(),
+                      ),
+                    ),
+                  ),
                 ],
               ),
               const SizedBox(height: 24),
