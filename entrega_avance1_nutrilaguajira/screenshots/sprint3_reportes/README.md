@@ -1,16 +1,17 @@
-# Evidencias de ejecución — Sprint 3: Reportes (CSV/PDF) y Alertas SMS
+# Evidencias de ejecución — Sprint 3: Reportes (CSV/PDF), Alertas SMS y Zonas en riesgo
 
 Capturas tomadas con la app **instalada y ejecutándose** en un emulador Android
 (perfil Pixel, **1080 × 2400 px**, **Android 16 / API 36**), en **modo avión**.
-Los reportes CSV/PDF y la cola de alertas son **100 % locales**.
+Los reportes y la cola de alertas son **100 % locales**.
 
-> **Nota metodológica.** Los archivos se generan dentro del sandbox de la app
-> (`<documentos>/exports/`) y solo salen del dispositivo si el usuario pulsa
-> "Compartir". En las capturas la ruta se muestra **relativa** a documentos
-> (`exports/…`) para no exponer la ruta absoluta del sandbox.
->
-> La posición GPS de los datos de ejemplo se simuló con
-> `adb emu geo fix -72.98765 11.24712` (en un equipo real la toma el GPS).
+> **Nota metodológica.**
+> - Los archivos se generan en el sandbox de la app (`<documentos>/exports/`) y
+>   solo salen si el usuario pulsa "Compartir". La ruta se muestra **relativa**
+>   (`exports/…`) para no exponer la ruta absoluta.
+> - La posición GPS de los datos de ejemplo se simuló con
+>   `adb emu geo fix -72.98765 11.24712`; en un equipo real la toma el GPS.
+> - Para el estado `Fallida` de la captura 14 se usó `pm disable-user` sobre
+>   Google Messages (ver más abajo): es un fallo **real**, no un mockup.
 
 ## Índice de capturas
 
@@ -20,44 +21,53 @@ Los reportes CSV/PDF y la cola de alertas son **100 % locales**.
 | [`12_reporte_csv_generado.png`](12_reporte_csv_generado.png) | Diálogo del CSV: ruta relativa (`exports/…`), **Compartir / Abrir / Cerrar**. |
 | [`13_reporte_pdf_preview.png`](13_reporte_pdf_preview.png) | Vista previa del **PDF** (`printing`/`PdfPreview`): encabezado, resumen por semáforo, tabla de casos ROJO con coordenadas y pie con la nota de T/E y P/E. |
 | [`14_alertas_pendientes.png`](14_alertas_pendientes.png) | Pantalla **Alertas SMS** con los **3 estados**: `Enviada` (verde), `Fallida` (rojo, con Reintentar) y `Pendiente` (gris, con Enviar). |
-| [`14b_alertas_error_intent.png`](14b_alertas_error_intent.png) | Evidencia de soporte: el SnackBar real muestra `ACTIVITY_NOT_FOUND` para el intent `sms:?body=…` cuando no hay app de SMS disponible. |
+| [`14b_alertas_error_intent.png`](14b_alertas_error_intent.png) | Soporte: SnackBar real con `ACTIVITY_NOT_FOUND` para el intent `sms:?body=…` cuando no hay app de SMS. |
+| [`15_zonas_riesgo.png`](15_zonas_riesgo.png) | **Zonas en riesgo**: 3 rancherías ordenadas por criticidad — Bahía Honda (6 rojos), Siapana (1 amarillo) y El Cardón (1 verde) — con chips por color y último caso. |
 
-La captura **15 (zonas en riesgo)** se agregará en el siguiente bloque.
+## Mapeo a requerimientos (honesto)
 
-## Mapeo a requerimientos
+| Requerimiento | % | Evidencia | Observación |
+|---|---|---|---|
+| **RF-09** — reporte consolidado filtrable (CSV/PDF) | ~80 % | `11`, `12`, `13`, `15` | CSV y PDF completos con filtros y consolidado por ranchería. Falta Talla/Edad y Peso/Edad (solo Peso/Talla). |
+| **RF-10** — alerta SMS / sincronización diferida | ~60 % | `14`, `14b` | Cola local + intent de SMS (`sms:?body=`, sin destinatario ni `SEND_SMS`). El enrutamiento automático y la sincronización por API quedan para Sprint 4. |
+| **RNF-01** — offline | 100 % | `11`–`15` | Reportes y cola funcionan en modo avión. |
+| **RNF-02** — rendimiento | 100 % | tests | 500 registros generan PDF en < 5 s (umbral holgado). |
+| **RNF-05** — validación de rangos | 100 % | tests | `ReporteFiltros.validar()` rechaza `fecha_fin < fecha_inicio`. |
+| **RNF-06** — seguridad local | 100 % | `12`, `13` | Archivos en el sandbox; la UI muestra ruta relativa. |
 
-| Requerimiento | Estado | Evidencia |
-|---|---|---|
-| **RF-09** — Reporte consolidado filtrable (CSV/PDF) | **CSV + PDF implementados**. Pendiente Sprint 4: Talla/Edad y Peso/Edad (solo hay Peso/Talla). | `11`, `12`, `13` |
-| **RF-10** — Alerta por SMS / sincronización diferida | **Cola local + envío por intent de SMS** (`sms:?body=`, sin destinatario ni `SEND_SMS`). Enrutamiento automático a centros de salud vía API queda para Sprint 4 (`SincronizacionStrategy` preparada). | `14`, `14b` |
-| **RNF-01** — Offline | Reportes y cola de alertas 100 % locales (modo avión). | `11`–`14` |
-| **RNF-02** — Rendimiento | 500 registros generan PDF en < 5 s (test con umbral holgado). | tests |
-| **RNF-05** — Validación de rangos | `ReporteFiltros.validar()` rechaza `fecha_fin < fecha_inicio`. | tests |
-| **RNF-06** — Seguridad local | Archivos en el sandbox; la UI muestra solo la ruta relativa. | `12`, `13` |
+## Cómo se generaron los datos de las capturas (real, no mockup)
 
-## Notas técnicas
+- **13 (PDF)**: se registró una evaluación ROJA con GPS desde la UI; el PDF
+  resume 5 evaluaciones (1 verde, 1 amarillo, 3 rojos) y la tabla de rojos
+  muestra `11.24712, -72.98765`.
+- **14 (alertas)**: se registraron 3 evaluaciones ROJA → 3 alertas `Pendiente`.
+  1) se envió la primera y Google Messages se abrió → `Enviada`;
+  2) se deshabilitó Google Messages (`pm disable-user`), se intentó la segunda
+  → `ACTIVITY_NOT_FOUND` → `Fallida` (ver `14b`), y se volvió a habilitar;
+  3) la tercera quedó `Pendiente`.
+- **15 (zonas)**: con las evaluaciones semilla (José verde en El Cardón,
+  Yuliana amarilla en Siapana, Andrés rojo en Bahía Honda) más las ROJA
+  registradas desde la UI, el consolidado queda ordenado por criticidad:
+  Bahía Honda (6 rojos), Siapana (1 amarillo), El Cardón (1 verde). El orden lo
+  calcula la app (`rojos DESC, amarillos DESC, total DESC`).
 
-- **PDF**: fuente Helvetica (Latin-1) → tildes/ñ correctas. El guion largo `—`
-  (U+2014) no está en Latin-1, así que el pie usa `-` y las coordenadas ausentes
-  se muestran como `N/D` para no dejar glifos faltantes.
-- **Alertas**: al guardar una evaluación **ROJO** se encola una alerta
-  (`alertas_pendientes`, esquema v3). El envío abre la app de SMS del sistema con
-  `sms:?body=<mensaje>` (sin destinatario) usando `url_launcher`
-  (`LaunchMode.externalApplication`). **No se usa `SEND_SMS`.**
-- **Cómo se generaron los 3 estados de la captura 14** (dato real, no mockup):
-  1. Se registraron 3 evaluaciones ROJA en la app → 3 alertas `Pendiente`.
-  2. Se envió la primera: Google Messages estaba disponible y el intent se
-     lanzó → `Enviada` (con `fecha_envio`).
-  3. Para la `Fallida`, se deshabilitó temporalmente Google Messages
-     (`pm disable-user`), se intentó el envío → `ACTIVITY_NOT_FOUND` → `Fallida`
-     (ver `14b`), y se volvió a habilitar.
-  4. La tercera se dejó `Pendiente`.
-- **Limitación del emulador**: Google Messages abre en modo *onboarding* (sin
-  cuenta), por lo que el cuerpo prellenado no siempre se ve en el compositor;
-  el intent y el `body` sí son correctos (se ven en el URI del error de `14b`).
-  En un equipo con app de SMS configurada, el brigadista elige el destinatario.
-- **Ruta futura**: `SincronizacionStrategy` es la interfaz para una
-  `ApiStrategy` de sincronización web (Sprint 4).
+## Deudas técnicas conocidas
+
+1. **Talla/Edad y Peso/Edad**: no se calculan (solo Peso/Talla). Requieren tablas
+   OMS por edad + motor + migración → **Sprint 4**. El CSV/PDF exportan esas
+   columnas vacías y el pie del PDF lo declara.
+2. **Sincronización API real**: no implementada. `SincronizacionStrategy` es la
+   interfaz preparada; hoy la única implementación es `SmsIntentStrategy`.
+   → **Sprint 4**.
+3. **SMS sin destinatario**: por diseño, hasta que exista una API o una
+   configuración de centros de salud. El brigadista elige el destinatario en su
+   app de mensajes. No se usa `SEND_SMS` ni `SharedPreferences`.
+4. **`historial_screen` con `setState` que devuelve un `Future`**: detectado en
+   el Bloque D (mismo patrón que corregimos en Alertas). No se corrigió por la
+   regla de no refactorizar Sprint 1/2; queda como deuda de mantenimiento.
+5. **Guion largo `—` del PDF**: Helvetica cubre Latin-1 (tildes/ñ) pero no
+   U+2014; el pie usa `-`. Embeber una TTF con soporte Unicode es opcional para
+   Sprint 4. Las coordenadas ausentes se muestran como `N/D`.
 
 ## Cómo reproducir
 
@@ -65,8 +75,10 @@ La captura **15 (zonas en riesgo)** se agregará en el siguiente bloque.
 cd entrega_avance1_nutrilaguajira/nutrilaguajira
 flutter run -d emulator-5554   # o instalar el APK de debug
 
-# Reportes: login demo -> "Reportes CSV/PDF"
-# Alertas:  login demo -> "Alertas SMS"
+# Reportes: login demo -> "Reportes"
+#   ajustar filtros -> "Generar CSV" / "Generar PDF" -> "Vista previa"
+# Alertas:  login demo -> "Alertas SMS" -> "Enviar" / "Reintentar"
+# Zonas:    login demo -> "Zonas en riesgo" -> tocar una ranchería
 ```
 
 Las capturas se tomaron con `adb exec-out screencap -p` con la app en ejecución.

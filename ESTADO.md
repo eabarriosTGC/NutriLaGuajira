@@ -1,7 +1,11 @@
 # Estado del proyecto — NutriLaGuajira
 
 Documento de traspaso para retomar el trabajo sin reconstruir contexto.
-Última actualización: **2026-11-17** (verificación de estado y traspaso al Sprint 2).
+Última actualización: **2026-11-17** (Sprint 3 cerrado).
+
+> **Nota honesta.** El Sprint 3 entrega el módulo de **reportes (CSV/PDF),
+> alertas SMS y zonas en riesgo**. La **validación en campo** con promotores se
+> ejecuta en **2026-2**, conforme al plan de trabajo, y no en este sprint.
 
 ---
 
@@ -11,17 +15,16 @@ Documento de traspaso para retomar el trabajo sin reconstruir contexto.
 |---|---|
 | Repo | https://github.com/eabarriosTGC/NutriLaGuajira (público, MIT) |
 | Rama | `main` |
-| HEAD actual | `70d0ba8` (docs: evidencias de ejecución del Sprint 2) |
-| Último commit de *contenido* del avance | `b852040` (docs: guía COMO_PROBAR.md) |
-| Tag / release | `v0.1.0-avance1` con `app-debug.apk` adjunto |
-| ⚠️ Commit al que apunta el tag | `4bf5c87` (feat: entrega avance 1) — el APK del release se compiló **antes** de `b38b896` (dart format) y de los commits de docs posteriores |
-| Estado | **Avance 1 cerrado y verificado** + **Sprint 2 en curso**: GPS/coordenadas de la ranchería ya implementado (migración de esquema a v2, captura opcional con `geolocator`); `flutter analyze` limpio, 49/49 tests |
+| HEAD | commit de cierre del Sprint 3 (docs) — ver `git log -3` |
+| Tag / release | `v0.1.0-avance1` con `app-debug.apk` adjunto (histórico) |
+| Estado | **Sprint 1 + Sprint 2 + Sprint 3 completos**: `flutter analyze` limpio, **85/85 tests**, formato limpio |
+| Evidencias | `entrega_avance1_nutrilaguajira/EVIDENCIAS_SPRINT{2,3}.md` + `screenshots/` |
 
-Alcance entregado: login local, registro de infantes/tutores, evaluación
-antropométrica, Z-score Peso/Talla con tabla DEMO, semáforo, SQLite offline,
-historial y detalle, y **captura opcional de GPS** (lat/lng de la ranchería).
-Reportes PDF/CSV, SMS y sincronización **no** están implementados (aparecen
-deshabilitados en el menú).
+Alcance funcional: login local, registro de infantes/tutores, evaluación
+antropométrica con **Z Peso/Talla** y semáforo, **captura opcional de GPS**,
+historial, **reportes CSV/PDF**, **alertas SMS** (cola local + intent) y **zonas
+en riesgo**. Pendiente: Talla/Edad, Peso/Edad, sincronización por API, validación
+en campo y capacitación (Sprint 4 / 2026-2).
 
 ---
 
@@ -32,7 +35,7 @@ git clone https://github.com/eabarriosTGC/NutriLaGuajira.git
 cd NutriLaGuajira/entrega_avance1_nutrilaguajira/nutrilaguajira
 
 flutter pub get
-flutter test        # debe dar 49/49 antes de tocar nada
+flutter test        # debe dar 85/85 antes de tocar nada
 flutter analyze     # debe estar limpio
 dart format --output=none --set-exit-if-changed lib test tool
 
@@ -47,8 +50,7 @@ cp build/app/outputs/flutter-apk/app-debug.apk ../../app-debug.apk
 gh release upload <tag> ../../app-debug.apk --clobber
 ```
 
-El APK **no** se commitea (pesa ~166 MB y está en `.gitignore`): va como asset
-del release.
+El APK **no** se commitea (está en `.gitignore`): va como asset del release.
 
 ---
 
@@ -59,24 +61,37 @@ lib/
   main.dart                 arranque, tema, locale es, pantalla de carga
   app_services.dart         localizador de dependencias + Sesion en memoria
   data/
-    db_nutrilaguajira.dart  esquema, semilla, carga del CSV a SQLite
-    repositorio.dart        consultas (login, infantes, evaluaciones)
-    models/                 Nino, Usuario, Evaluacion, ReferenciaWho
+    db_nutrilaguajira.dart  esquema v3, semilla, migraciones, carga del CSV
+    repositorio.dart        consultas (login, infantes, evaluaciones, reportes,
+                            alertas, zonas en riesgo)
+    models/                 Nino, Usuario, Evaluacion, ReferenciaWho,
+                            EvaluacionReporte, AlertaPendiente, ResumenZona
   services/
-    nutricion_service.dart  MOTOR de cálculo (puro: sin Flutter ni SQLite)
+    nutricion_service.dart  MOTOR de cálculo P/T (puro: sin Flutter ni SQLite)
     validadores.dart        reglas de formulario (rangos, fecha, edad)
     edad.dart               meses cumplidos
     fechas.dart             formato dd/MM/yyyy (intl)
     referencias_csv.dart    parser del CSV (Dart puro)
     referencias_loader.dart acceso al asset
-    localizacion_service.dart GPS opcional (wrapper de geolocator) + Coordenada
+    localizacion_service.dart GPS opcional (geolocator) + Coordenada
+    reporte_csv_service.dart  filtros + CSV (BOM UTF-8, RFC 4180)
+    reporte_pdf_service.dart  PDF (encabezado, resumen, casos rojos, pie)
+    sincronizacion_strategy.dart  interfaz (TODO: ApiStrategy Sprint 4)
+    sms_intent_strategy.dart  envío por intent `sms:?body=` (sin SEND_SMS)
+    alerta_service.dart       encolado en ROJO, envío y reintento
   screens/                  login, home, seleccion, nino_form, evaluacion_form,
-                            resultado, historial, detalle, acerca_de
+                            resultado, historial, detalle, acerca_de,
+                            reportes, reporte_pdf_preview, alertas,
+                            zonas_riesgo, zona_detalle
   theme/                    tema Material 3 + colores del semáforo
   widgets/componentes.dart  botones, chips, PanelVacio, FilaDato
-test/                       49 pruebas (motor, validadores, widget, SQLite real, migración)
+test/                       85 pruebas (motor, validadores, widget, SQLite real,
+                            migración, reportes, alertas, zonas)
 tool/calcular_demo.dart     recalcula los casos semilla con el motor real
 ```
+
+Dependencias principales: `sqflite, path, intl, geolocator, path_provider,
+share_plus, open_filex, pdf, printing, url_launcher`.
 
 ---
 
@@ -92,52 +107,81 @@ tool/calcular_demo.dart     recalcula los casos semilla con el motor real
    y el motor se construye leyéndola. Reemplazarla no toca el cálculo.
 6. **La semilla se calcula con el motor**, nunca con colores escritos a mano.
 7. Los textos de la interfaz van **en español con tildes**.
+8. **ROJO = evaluación con `clasificacion == 'ROJO'`** (clave `'rojo'`). Es el
+   único criterio que encola alertas.
 
 ---
 
-## 5. Pendientes (orden propuesto para el Sprint 2)
+## 5. Sprint 3 — COMPLETO
+
+| Módulo | Qué hace | Evidencia |
+|---|---|---|
+| Reportes CSV | Filtros por fecha/comunidad/estado, 17 columnas, BOM UTF-8, RFC 4180, guardar en sandbox, compartir/abrir. | `11`, `12` |
+| Reportes PDF | Encabezado con filtros, resumen por semáforo, casos ROJO con coordenadas, pie con nota T/E y P/E, vista previa (`printing`). | `13` |
+| Alertas SMS | Tabla `alertas_pendientes` (v3), encolado automático en ROJO, intent `sms:?body=` (sin destinatario ni `SEND_SMS`), estados y reintento. | `14`, `14b` |
+| Zonas en riesgo | Consolidado por ranchería ordenado por criticidad, detalle de casos ROJO y copia de coordenadas. | `15` |
+| Menú | 6 accesos definitivos con iconos, sin chips de "próximo". | código |
+
+**Commits del Sprint 3:** `7bebbd3` (CSV), `012811c` (pantalla reportes),
+`09553c5` (PDF), `3476dfb` (tabla v3 + servicios de alertas), `5e919b1`
+(pantalla de alertas) + commits de cierre (zonas, menú, docs).
+
+**Calidad:** `flutter test` 85/85, `flutter analyze` 0 issues, `dart format`
+limpio.
+
+---
+
+## 6. Sprint 4 — PLANIFICADO
 
 | # | Tarea | Notas de arranque |
 |---|---|---|
-| 1 | ~~GPS y coordenadas de la ranchería~~ ✅ **hecho** | columna `lat`/`lng` en `evaluaciones` (esquema v2, `onUpgrade`); permisos en `AndroidManifest`; captura opcional con botón en el formulario (`localizacion_service.dart`, `geolocator`) |
-| 2 | **Reportes PDF/CSV** | generar desde `historial()`; CSV con `intl`; PDF con paquete local (evitar servicios externos); botón en detalle |
-| 3 | **Alertas por SMS** | sin backend: `intent` de SMS con texto prellenado (no envío silencioso); requiere consentimiento explícito |
-| 4 | **Sincronización offline-first** | `sincronizado` ya existe en el esquema (siempre 0); definir backend, resolución de conflictos y cifrado antes de mover datos de menores |
-| 5 | Tablas OMS completas | reemplazar `assets/who_referencia_demo.csv` + migración que repueble la tabla; revisar Resolución 2465/2016 y 115/2026 |
-| 6 | Peso/Edad y Talla/Edad | el motor hoy solo calcula Peso/Talla |
-| 7 | Editar / borrar evaluaciones | hoy solo hay inserción y lectura |
-| 8 | APK de distribución | hoy es *debug* (166 MB, clave de debug); para entregar de verdad, keystore + `--release` + `--split-per-abi` |
-
-### Deudas menores conocidas
-
-- La BD del emulador de pruebas quedó con **8 tamizajes** (4 semilla + 4 de la
-  demo en vivo), incluido un registro extra de Yuliana que no está en la semilla.
-  No afecta al código: es solo estado del dispositivo.
-- Falta agregar al compañero como colaborador de GitHub si va a hacer commits
-  (el repo es público para leer/probar, no para escribir).
-- No hay cifrado local: los datos de menores están en SQLite en claro. Es
-  aceptable para un prototipo académico, no para producción.
+| 1 | **Talla/Edad y Peso/Edad** | tablas OMS por edad + motor + migración; el CSV/PDF ya reservan las columnas (hoy vacías) |
+| 2 | **Sincronización API** | implementar `ApiStrategy` sobre `SincronizacionStrategy`; definir backend, conflictos y cifrado antes de mover datos de menores |
+| 3 | **Enrutamiento SMS a centros de salud** | requiere API o configuración de destinatarios; hoy el brigadista elige el destinatario |
+| 4 | **Tablas OMS completas** | reemplazar `assets/who_referencia_demo.csv`; revisar Resolución 2465/2016 y 115/2026 |
+| 5 | **TTF opcional para el PDF** | para soportar `—` (U+2014) y otros caracteres fuera de Latin-1 |
+| 6 | **Editar / borrar evaluaciones** | hoy solo hay inserción y lectura |
+| 7 | **APK de distribución** | keystore + `--release` + `--split-per-abi` |
+| 8 | **Validación en campo y capacitación** | 2026-2, con promotores y Uniguajira |
 
 ---
 
-## 6. Cómo se verificó (repetir antes de cada entrega)
+## 7. Deudas técnicas conocidas
+
+- **`historial_screen._recargar`**: usa `setState(() => _futuro = nuevo)`, que
+  devuelve un `Future` y Flutter rechaza en debug. Detectado en el Bloque D (se
+  corrigió en Alertas). No se tocó por la regla de no refactorizar Sprint 1/2;
+  pendiente de mantenimiento.
+- **SMS sin destinatario**: por diseño hasta que exista API/configuración de
+  centros de salud. Sin `SEND_SMS`, sin `SharedPreferences`.
+- **Sin cifrado local**: los datos de menores están en SQLite en claro. Aceptable
+  para prototipo académico, no para producción.
+- **Tabla DEMO**: el cálculo sigue usando `who_referencia_demo` (no las tablas OMS
+  completas); el aviso académico está en "Acerca de".
+- **Emulador**: Google Messages abre en modo *onboarding*, por lo que el cuerpo
+  del SMS no siempre se ve en el compositor; el intent y el `body` son correctos.
+- **Compañero de equipo**: falta agregarlo como colaborador de GitHub si va a
+  hacer commits.
+
+---
+
+## 8. Cómo se verificó (repetir antes de cada entrega)
 
 1. `flutter analyze` → sin observaciones.
-2. `flutter test` → 49/49.
-3. `dart format --set-exit-if-changed` → sin cambios pendientes.
+2. `flutter test` → **85/85**.
+3. `dart format --set-exit-if-changed lib test tool` → sin cambios.
 4. Emulador: login → registrar infante → evaluación → semáforo → cerrar app →
-   reabrir → historial intacto.
-5. Clonar el repo en `/tmp` y correr `flutter test` desde el clon (confirma que
-   no hay archivos que existan solo en la máquina local).
+   reabrir → historial intacto; generar CSV/PDF; encolar y enviar una alerta;
+   abrir "Zonas en riesgo".
+5. Clonar el repo en `/tmp` y correr `flutter test` desde el clon.
 
-Evidencia visual en `entrega_avance1_nutrilaguajira/screenshots/` (índice en
-`screenshots/README.md`; el set del Sprint 2 con GPS está en
-`screenshots/sprint2_gps/` y el resumen para el informe en
-`entrega_avance1_nutrilaguajira/EVIDENCIAS_SPRINT2.md`).
+Evidencia visual: `entrega_avance1_nutrilaguajira/screenshots/`
+(`sprint2_gps/`, `sprint3_reportes/`) y los resúmenes
+`EVIDENCIAS_SPRINT2.md` / `EVIDENCIAS_SPRINT3.md`.
 
 ---
 
-## 7. Defectos ya corregidos (no reintroducir)
+## 9. Defectos ya corregidos (no reintroducir)
 
 1. `ListTileThemeData.titleTextStyle` sin `color` → nombre del infante invisible.
 2. Evaluación recién creada sin `ninoNombre`/`comunidad` → "Comunidad —" en el
@@ -146,10 +190,12 @@ Evidencia visual en `entrega_avance1_nutrilaguajira/screenshots/` (índice en
 4. "La talla es obligatorio" → concordancia de género en validadores.
 5. Date picker en inglés → `flutter_localizations` con `locale: es`.
 6. Tildes faltantes en textos visibles y en la semilla.
+7. `setState` con callback que devuelve `Future` en la pantalla de alertas →
+   corregido con bloque `{ ... }` (la misma deuda existe en `historial_screen`).
 
 ---
 
-## 8. Contacto y equipo
+## 10. Contacto y equipo
 
 - Autor del repo: `eabarriosTGC` (LinuxeroGuajiro).
 - Compañero de equipo: **pendiente** de agregar como colaborador / de registrar
