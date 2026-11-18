@@ -8,6 +8,7 @@ import 'historial_screen.dart';
 import 'login_screen.dart';
 import 'reportes_screen.dart';
 import 'seleccion_nino_screen.dart';
+import 'zonas_riesgo_screen.dart';
 
 /// Menu principal del prototipo.
 class HomeScreen extends StatefulWidget {
@@ -130,6 +131,41 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
               const SizedBox(height: 14),
               BotonMenu(
+                icono: Icons.description,
+                titulo: 'Reportes',
+                descripcion: 'Exportar CSV y PDF por fecha, ranchería y estado',
+                onTap: () => Navigator.of(context).push(
+                  MaterialPageRoute<void>(
+                    builder: (_) => const ReportesScreen(),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 14),
+              BotonMenu(
+                icono: Icons.sms,
+                titulo: 'Alertas SMS',
+                descripcion:
+                    'Cola de alertas de desnutrición aguda para enviar',
+                onTap: () => Navigator.of(context).push(
+                  MaterialPageRoute<void>(
+                    builder: (_) => const AlertasScreen(),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 14),
+              BotonMenu(
+                icono: Icons.warning_amber,
+                titulo: 'Zonas en riesgo',
+                descripcion:
+                    'Consolidado por ranchería, ordenado por criticidad',
+                onTap: () => Navigator.of(context).push(
+                  MaterialPageRoute<void>(
+                    builder: (_) => const ZonasRiesgoScreen(),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 14),
+              BotonMenu(
                 icono: Icons.info_outline,
                 titulo: 'Acerca de',
                 descripcion: 'Alcance, limitaciones y aviso académico',
@@ -138,37 +174,6 @@ class _HomeScreenState extends State<HomeScreen> {
                     builder: (_) => const AcercaDeScreen(),
                   ),
                 ),
-              ),
-              const SizedBox(height: 28),
-              Text(
-                'Próximo sprint',
-                style: TextStyle(
-                  fontWeight: FontWeight.w700,
-                  color: esquema.onSurfaceVariant,
-                ),
-              ),
-              const SizedBox(height: 10),
-              Wrap(
-                spacing: 10,
-                runSpacing: 10,
-                children: [
-                  ActionChip(
-                    label: const Text('Reportes CSV/PDF'),
-                    onPressed: () => Navigator.of(context).push(
-                      MaterialPageRoute<void>(
-                        builder: (_) => const ReportesScreen(),
-                      ),
-                    ),
-                  ),
-                  ActionChip(
-                    label: const Text('Alertas SMS'),
-                    onPressed: () => Navigator.of(context).push(
-                      MaterialPageRoute<void>(
-                        builder: (_) => const AlertasScreen(),
-                      ),
-                    ),
-                  ),
-                ],
               ),
               const SizedBox(height: 24),
               Card(
