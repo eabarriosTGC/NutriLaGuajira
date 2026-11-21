@@ -17,3 +17,9 @@ android/.gradle/
 # APK de la entrega: se distribuye como asset del release de GitHub,
 # no dentro del historial de git (pesa ~166 MB en modo debug).
 entrega_avance1_nutrilaguajira/app-debug.apk
+
+# Firma de release (NUNCA commitear)
+**/android/key.properties
+*.jks
+*.keystore
+**/nutrilaguajira-keystore/
