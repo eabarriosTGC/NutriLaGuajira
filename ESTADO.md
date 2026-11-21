@@ -1,7 +1,7 @@
 # Estado del proyecto — NutriLaGuajira
 
 Documento de traspaso para retomar el trabajo sin reconstruir contexto.
-Última actualización: **2026-11-21** (Sprint 4 técnico — Bloque 1: T/E y P/E DEMO).
+Última actualización: **2026-11-21** (Sprint 4 técnico — Bloques 1–2: T/E-P/E DEMO + historial/TTF).
 
 > **Nota honesta.** El Sprint 3 entrega el módulo de **reportes (CSV/PDF),
 > alertas SMS y zonas en riesgo**. La **validación en campo** con promotores se
@@ -21,7 +21,7 @@ Documento de traspaso para retomar el trabajo sin reconstruir contexto.
 | Rama | `main` |
 | HEAD | `9aba19f` (docs: README con Sprints 1–3 y APK) |
 | Tag / release | `v0.3.0-sprint3` (actual) y `v0.1.0-avance1` (histórico), ambos con `app-debug.apk` adjunto |
-| Estado | **Sprint 1 + 2 + 3 completos** + **Sprint 4 técnico en curso** (T/E y P/E DEMO): `flutter analyze` limpio, **98/98 tests**, formato limpio |
+| Estado | **Sprint 1 + 2 + 3 completos** + **Sprint 4 técnico en curso** (T/E-P/E DEMO + historial/TTF): `flutter analyze` limpio, **100/100 tests**, formato limpio |
 | Evidencias | `entrega_avance1_nutrilaguajira/EVIDENCIAS_SPRINT{2,3}.md` + `screenshots/` |
 
 Alcance funcional: login local, registro de infantes/tutores, evaluación
@@ -40,7 +40,7 @@ git clone https://github.com/eabarriosTGC/NutriLaGuajira.git
 cd NutriLaGuajira/entrega_avance1_nutrilaguajira/nutrilaguajira
 
 flutter pub get
-flutter test        # debe dar 98/98 antes de tocar nada
+flutter test        # debe dar 100/100 antes de tocar nada
 flutter analyze     # debe estar limpio
 dart format --output=none --set-exit-if-changed lib test tool
 
@@ -83,7 +83,7 @@ lib/
     referencias_edad_loader.dart acceso al asset LMS por edad
     localizacion_service.dart GPS opcional (geolocator) + Coordenada
     reporte_csv_service.dart  filtros + CSV (BOM UTF-8, RFC 4180)
-    reporte_pdf_service.dart  PDF (encabezado, resumen, casos rojos, pie)
+    reporte_pdf_service.dart  PDF con TTF local (encabezado, resumen, pie)
     sincronizacion_strategy.dart  interfaz (TODO: ApiStrategy Sprint 4)
     sms_intent_strategy.dart  envío por intent `sms:?body=` (sin SEND_SMS)
     alerta_service.dart       encolado en ROJO, envío y reintento
@@ -98,9 +98,9 @@ test/                       98 pruebas (motor, validadores, widget, SQLite real,
 tool/calcular_demo.dart     recalcula los casos semilla con el motor real
 ```
 
-Assets de referencia: `assets/who_referencia_demo.csv` (P/T **DEMO**) y
+Assets de referencia: `assets/who_referencia_demo.csv` (P/T **DEMO**),
 `assets/who_edad_demo.csv` (LMS por edad **DEMO**, reemplazable por la OMS sin
-tocar código).
+tocar código) y `assets/fonts/` (Roboto Regular/Bold, Apache 2.0, para el PDF).
 
 Dependencias principales: `sqflite, path, intl, geolocator, path_provider,
 share_plus, open_filex, pdf, printing, url_launcher`.
@@ -138,7 +138,7 @@ share_plus, open_filex, pdf, printing, url_launcher`.
 `09553c5` (PDF), `3476dfb` (tabla v3 + servicios de alertas), `5e919b1`
 (pantalla de alertas) + commits de cierre (zonas, menú, docs).
 
-**Calidad:** `flutter test` 98/98, `flutter analyze` 0 issues, `dart format`
+**Calidad:** `flutter test` 100/100, `flutter analyze` 0 issues, `dart format`
 limpio.
 
 ---
@@ -151,8 +151,8 @@ limpio.
 |---|---|---|
 | 1 | ~~Talla/Edad y Peso/Edad~~ ✅ **implementados con tabla DEMO (LMS)** | motor + migración v4; CSV/PDF/UI los muestran. El reemplazo por la tabla OMS oficial es el **Gate 1** del roadmap (post-Sprint 4). |
 | 2 | **Tablas OMS completas** | reemplazar `assets/who_referencia_demo.csv`; revisar Resolución 2465/2016 y 115/2026 |
-| 3 | **Corregir `historial_screen`** | `setState` con callback que devuelve un `Future` (deuda detectada en el Sprint 3) |
-| 4 | **TTF opcional para el PDF** | para soportar `—` (U+2014) y otros caracteres fuera de Latin-1 |
+| 3 | ~~Corregir `historial_screen`~~ ✅ **corregido** | `_recargar` usa un bloque `setState`; test de refresco sin excepción de framework |
+| 4 | ~~TTF opcional para el PDF~~ ✅ **TTF local (Roboto)** | soporta `—`, `«»`, `¿¡`, tildes y ñ sin red ni Google Fonts |
 | 5 | **Editar / borrar evaluaciones** | hoy solo hay inserción y lectura |
 | 6 | **APK de distribución** | keystore + `--release` + `--split-per-abi` |
 
@@ -184,10 +184,8 @@ al Sprint 4 técnico.
 
 ## 7. Deudas técnicas conocidas
 
-- **`historial_screen._recargar`**: usa `setState(() => _futuro = nuevo)`, que
-  devuelve un `Future` y Flutter rechaza en debug. Detectado en el Bloque D (se
-  corrigió en Alertas). No se tocó por la regla de no refactorizar Sprint 1/2;
-  pendiente de mantenimiento.
+- **~~`historial_screen._recargar`~~** ✅ **corregido en el Bloque 2**: el `setState`
+  usa bloque (`{ ... }`) y hay un widget test que verifica el refresco.
 - **SMS sin destinatario**: por diseño hasta que exista API/configuración de
   centros de salud. Sin `SEND_SMS`, sin `SharedPreferences`.
 - **Sin cifrado local**: los datos de menores están en SQLite en claro. Aceptable
@@ -206,7 +204,7 @@ al Sprint 4 técnico.
 ## 8. Cómo se verificó (repetir antes de cada entrega)
 
 1. `flutter analyze` → sin observaciones.
-2. `flutter test` → **98/98**.
+2. `flutter test` → **100/100**.
 3. `dart format --set-exit-if-changed lib test tool` → sin cambios.
 4. Emulador: login → registrar infante → evaluación → semáforo → cerrar app →
    reabrir → historial intacto; generar CSV/PDF; encolar y enviar una alerta;

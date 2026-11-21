@@ -13,9 +13,9 @@ Proyecto académico — Escuela de Ingeniería de Sistemas. Metodología Scrum
 | **1** | Login local, registro de infantes/tutores, formulario antropométrico, persistencia SQLite offline e historial. |
 | **2** | Z-score Peso/Talla con tabla DEMO, semáforo (verde/amarillo/rojo), captura **opcional de GPS** (alta precisión + fallback offline) y detalle georreferenciado. |
 | **3** | **Reportes CSV/PDF** con filtros, **alertas SMS** con cola local y reintento, y **zonas en riesgo** consolidadas por ranchería. |
-| **4 (técnico, en curso)** | Z **Talla/Edad** y **Peso/Edad** con tabla **DEMO (LMS)**, migración de esquema v4 y reportes/UI con los índices. |
+| **4 (técnico, en curso)** | Z **Talla/Edad** y **Peso/Edad** con tabla **DEMO (LMS)**, migración de esquema v4, reportes/UI con los índices, **PDF con TTF local** (`—`, `«»`, `¿¡`) y `historial_screen` corregido. |
 
-**Calidad actual:** `flutter test` **98/98** · `flutter analyze` **0 issues** ·
+**Calidad actual:** `flutter test` **100/100** · `flutter analyze` **0 issues** ·
 `dart format` sin cambios pendientes.
 
 ## Funcionalidades
@@ -31,8 +31,9 @@ Proyecto académico — Escuela de Ingeniería de Sistemas. Metodología Scrum
 - **Reportes CSV**: filtros por fecha/comunidad/estado, UTF-8 con BOM, escape
   RFC 4180, guardado en el sandbox y acciones Compartir/Abrir.
 - **Reportes PDF**: encabezado con filtros aplicados, resumen por semáforo,
-  casos ROJO con **Z P/T, Z T/E, Z P/E** y coordenadas; pie que marca la fuente
-  DEMO; vista previa.
+  casos ROJO con **Z P/T, Z T/E, Z P/E** y coordenadas; **TTF local (Roboto)**
+  que soporta `—`, `«»`, `¿¡`, tildes y ñ; pie que marca la fuente DEMO; vista
+  previa.
 - **Alertas SMS**: cola local (`alertas_pendientes`), encolado automático al
   registrar una evaluación ROJA, envío por intent `sms:?body=` (sin `SEND_SMS`)
   y reintento de fallidas.
@@ -58,7 +59,7 @@ Protect avisa al instalar, es esperado → "Instalar de todas formas".
 ```bash
 cd entrega_avance1_nutrilaguajira/nutrilaguajira
 flutter pub get
-flutter test      # 98/98
+flutter test      # 100/100
 flutter analyze   # 0 issues
 flutter run       # con un dispositivo o emulador Android conectado
 ```

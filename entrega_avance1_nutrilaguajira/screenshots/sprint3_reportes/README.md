@@ -67,12 +67,10 @@ Los reportes y la cola de alertas son **100 % locales**.
 3. **SMS sin destinatario**: por diseño, hasta que exista una API o una
    configuración de centros de salud. El brigadista elige el destinatario en su
    app de mensajes. No se usa `SEND_SMS` ni `SharedPreferences`.
-4. **`historial_screen` con `setState` que devuelve un `Future`**: detectado en
-   el Bloque D (mismo patrón que corregimos en Alertas). No se corrigió por la
-   regla de no refactorizar Sprint 1/2; queda como deuda de mantenimiento.
-5. **Guion largo `—` del PDF**: Helvetica cubre Latin-1 (tildes/ñ) pero no
-   U+2014; el pie usa `-`. Embeber una TTF con soporte Unicode es opcional para
-   Sprint 4. Las coordenadas ausentes se muestran como `N/D`.
+4. **~~`historial_screen` con `setState` que devuelve un `Future`~~** ✅
+   **corregido en el Sprint 4 técnico** (bloque + test de refresco).
+5. **~~Guion largo `—` del PDF~~** ✅ **resuelto en el Sprint 4 técnico**: el PDF
+   usa una TTF local (Roboto) que soporta `—`, `«»`, `¿¡`, tildes y ñ.
 
 ## Cómo reproducir
 
