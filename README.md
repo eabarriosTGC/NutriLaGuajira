@@ -6,16 +6,16 @@ desnutrición infantil en comunidades rurales dispersas de La Guajira, Colombia.
 Proyecto académico — Escuela de Ingeniería de Sistemas. Metodología Scrum
 (3 sprints).
 
-## Estado: Sprints 1, 2 y 3 completos · Sprint 4 técnico en curso
+## Estado: Sprints 1, 2, 3 y 4 técnico completos
 
 | Sprint | Entregado |
 |---|---|
 | **1** | Login local, registro de infantes/tutores, formulario antropométrico, persistencia SQLite offline e historial. |
 | **2** | Z-score Peso/Talla con tabla DEMO, semáforo (verde/amarillo/rojo), captura **opcional de GPS** (alta precisión + fallback offline) y detalle georreferenciado. |
 | **3** | **Reportes CSV/PDF** con filtros, **alertas SMS** con cola local y reintento, y **zonas en riesgo** consolidadas por ranchería. |
-| **4 (técnico, en curso)** | Z **Talla/Edad** y **Peso/Edad** con tabla **DEMO (LMS)**, migración de esquema v4, reportes/UI con los índices, **PDF con TTF local** (`—`, `«»`, `¿¡`) y `historial_screen` corregido. |
+| **4 (técnico, completo)** | Z **Talla/Edad** y **Peso/Edad** con tabla **DEMO (LMS)**, migración de esquema v4, reportes/UI con los índices, **PDF con TTF local** (`—`, `«»`, `¿¡`) y `historial_screen` corregido. |
 
-**Calidad actual:** `flutter test` **100/100** · `flutter analyze` **0 issues** ·
+**Calidad actual:** `flutter test` **101/101** · `flutter analyze` **0 issues** ·
 `dart format` sin cambios pendientes.
 
 ## Funcionalidades
@@ -59,7 +59,7 @@ Protect avisa al instalar, es esperado → "Instalar de todas formas".
 ```bash
 cd entrega_avance1_nutrilaguajira/nutrilaguajira
 flutter pub get
-flutter test      # 100/100
+flutter test      # 101/101
 flutter analyze   # 0 issues
 flutter run       # con un dispositivo o emulador Android conectado
 ```
@@ -68,11 +68,13 @@ Credenciales demo: usuario `promotor`, contraseña `demo123`.
 
 ## Documentación y evidencias
 
-- [`ESTADO.md`](ESTADO.md) — estado del proyecto, deudas técnicas y plan del Sprint 4.
+- [`ESTADO.md`](ESTADO.md) — estado del proyecto, deudas técnicas y Sprint 4 técnico completo.
 - [`COMO_PROBAR.md`](COMO_PROBAR.md) — guía paso a paso para probar el APK.
 - [`entrega_avance1_nutrilaguajira/EVIDENCIAS_SPRINT2.md`](entrega_avance1_nutrilaguajira/EVIDENCIAS_SPRINT2.md) — evidencias del GPS.
 - [`entrega_avance1_nutrilaguajira/EVIDENCIAS_SPRINT3.md`](entrega_avance1_nutrilaguajira/EVIDENCIAS_SPRINT3.md) — resumen 6.1 y evidencias 6.2 del Sprint 3.
-- [`entrega_avance1_nutrilaguajira/screenshots/`](entrega_avance1_nutrilaguajira/screenshots/) — capturas (`sprint2_gps/` y `sprint3_reportes/`).
+- [`entrega_avance1_nutrilaguajira/EVIDENCIAS_SPRINT4.md`](entrega_avance1_nutrilaguajira/EVIDENCIAS_SPRINT4.md) — cierre técnico post-entrega (T/E, P/E, historial y TTF).
+- [`entrega_avance1_nutrilaguajira/ROADMAP_INTEROPERABILIDAD.md`](entrega_avance1_nutrilaguajira/ROADMAP_INTEROPERABILIDAD.md) — fases y gates de interoperabilidad (post-Sprint 4).
+- [`entrega_avance1_nutrilaguajira/screenshots/`](entrega_avance1_nutrilaguajira/screenshots/) — capturas (`sprint2_gps/`, `sprint3_reportes/` y `sprint4_te_pe/`).
 - [`entrega_avance1_nutrilaguajira/`](entrega_avance1_nutrilaguajira/) — informe, guion de demo y proyecto Flutter completo.
 
 ## Estructura del repositorio
@@ -84,9 +86,11 @@ COMO_PROBAR.md                  guía de prueba del APK
 entrega_avance1_nutrilaguajira/
   EVIDENCIAS_SPRINT2.md         evidencias GPS
   EVIDENCIAS_SPRINT3.md         evidencias reportes/alertas/zonas
+  EVIDENCIAS_SPRINT4.md         cierre técnico: T/E, P/E, historial y TTF
+  ROADMAP_INTEROPERABILIDAD.md  fases y gates post-Sprint 4
   informe_avance1.md            informe del avance
   demo_script.md                guion de exposición
-  screenshots/                  capturas reales de la app
+  screenshots/                  capturas reales (sprint2_gps, sprint3_reportes, sprint4_te_pe)
   nutrilaguajira/               proyecto Flutter (lib/, test/, assets/)
 ```
 
