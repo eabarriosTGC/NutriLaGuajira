@@ -13,6 +13,12 @@
 > incluirlos en un documento académico o en una propuesta institucional. Si la
 > fecha de obligatoriedad no es exacta, el argumento de urgencia se debilita y
 > un evaluador puede detectarlo.
+>
+> **Uso previsto.** Este documento puede compartirse con las entidades socias
+> (Uniguajira, Secretaría de Salud Departamental, PMA, Fundación Baylor, Acción
+> contra el Hambre) como punto de partida para la conversación sobre gobernanza
+> y terminología. No es un compromiso de implementación ni una especificación
+> técnica cerrada.
 
 ---
 
@@ -235,3 +241,16 @@ escribe código** de FHIR/`ApiStrategy`.
 > Todas las fechas y plazos citados en este documento quedan **pendientes de
 > verificación** contra la fuente oficial del Ministerio de Salud y Protección
 > Social antes de su uso en documentos académicos.
+
+---
+
+## 11. Próximas acciones institucionales (para desbloquear Gate 1)
+
+1. Solicitar a la Secretaría de Salud Departamental y/o al Minsalud el catálogo
+   vigente de códigos CIE-10/11 y LOINC/UCUM aplicables a desnutrición infantil.
+2. Solicitar a Uniguajira la Guía de Implementación IHCE vigente y los perfiles
+   publicados (vulcano.ihcecol.gov.co/guia/ o el nodo que corresponda).
+3. Identificar un referente clínico/epidemiológico que revise y firme el mapeo
+   FHIR (evidencia de Gate 1).
+4. Documentar la decisión sobre identificadores (documento del infante, código de
+   ranchería, idempotencia) en un anexo de 1 página.
