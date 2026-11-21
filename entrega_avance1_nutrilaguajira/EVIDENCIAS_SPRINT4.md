@@ -59,4 +59,7 @@ sin cambios pendientes.
 | `d11d14e` | TTF local (Roboto) y em-dash en el PDF. |
 | `6ea5323` | Docs: historial corregido y PDF con TTF. |
 | `ff7b10d` | Test: estado vacío de historial. |
-| *(cierre)* | Capturas 16–18, este documento, `ESTADO.md` final y README raíz. |
+| `d506cf1` | Cerrar set sprint4_te_pe con capturas 16–18 y README. |
+| `79af917` | EVIDENCIAS_SPRINT4.md con tabla de cierre. |
+| `4badfec` | ESTADO.md: Sprint 4 técnico COMPLETO. |
+| `518cc91` | Verificación final de coherencia. |
