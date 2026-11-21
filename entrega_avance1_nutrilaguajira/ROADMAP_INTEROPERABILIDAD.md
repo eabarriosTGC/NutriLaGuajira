@@ -201,7 +201,7 @@ en el Sprint 4 técnico:
   U+2014 se sustituye por `-`).
 - **Editar / borrar evaluaciones** (hoy solo inserción y lectura).
 - **APK de distribución** (keystore + `--release` + `--split-per-abi`).
-- **Validación en campo y capacitación** (2026-2).
+- **Validación en campo y capacitación** (2027-1).
 
 La **sincronización API** y el **enrutamiento SMS a centros de salud** no son
 deudas técnicas del Sprint 4: son **fase institucional post-Sprint 4** y dependen

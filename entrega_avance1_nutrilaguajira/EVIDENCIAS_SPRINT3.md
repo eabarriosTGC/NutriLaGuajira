@@ -14,9 +14,9 @@ aplica. La posición GPS de los datos de ejemplo se simuló con
 ## 6.1 Resumen general del avance
 
 Al cierre del Sprint 3, el **producto técnico de NutriLaGuajira está listo para
-la fase de implementación en campo** prevista para 2026-2. De las 8 actividades
+la fase de implementación en campo** prevista para 2027-1. De las 8 actividades
 del cronograma del plan de trabajo (apartado 5), **ninguna se ha ejecutado
-todavía**: todas están programadas para el semestre 2026-2, tal como establece
+todavía**: todas están programadas para el semestre 2027-1, tal como establece
 el propio plan. Lo que sí está completo es la **preparación técnica** que
 habilita esas actividades:
 
@@ -31,10 +31,14 @@ El **35 % reportado para el Objetivo General** corresponde a la preparación
 técnica verificable (producto funcional + tests + evidencias), **no** a la
 ejecución en campo. El 65 % restante son las actividades 1–8 del cronograma:
 validación en rancherías, capacitación de gestores y articulación
-interinstitucional, todas en 2026-2.
+interinstitucional, todas en 2027-1.
 
 **Calidad actual:** 85/85 tests verdes, `flutter analyze` 0 issues,
 `dart format` sin cambios pendientes.
+
+Al cierre del Sprint 3 (noviembre de 2026) el producto técnico está listo; las
+capturas de evidencia corresponden a la validación técnica en emulador, previa a
+la ejecución en campo de 2027-1.
 
 ---
 
@@ -42,10 +46,10 @@ interinstitucional, todas en 2026-2.
 
 | Objetivo | % Cumplimiento | Evidencia | Observación |
 |---|---|---|---|
-| **Objetivo General del plan de trabajo** (implementar y desplegar NutriLaGuajira en rancherías durante 2026-2). | ~35 % *(preparación técnica)* | Sprint 3 entrega el módulo de **reportes (CSV/PDF) + alertas SMS + zonas en riesgo**, listo para validación en campo. Capturas [`11`](screenshots/sprint3_reportes/11_reporte_filtros.png)–[`15`](screenshots/sprint3_reportes/15_zonas_riesgo.png); 85 pruebas automatizadas. | El 35 % es **preparación técnica verificable**. El 65 % restante son las actividades del cronograma (validación en rancherías, capacitación, articulación) que se ejecutan en **2026-2**. |
-| **Objetivo Específico 1** (validar la app con promotores en 3 rancherías piloto). | ~20 % | Sanity checks en emulador (capturas reales), 85 tests verdes, `flutter analyze` sin issues. | La validación con usuarios reales y en condiciones de campo (luminosidad, conectividad) queda para 2026-2 (actividades 4 y 6 del cronograma). |
-| **Objetivo Específico 2** (capacitar a gestores comunitarios y estudiantes). | 0 % | — | Se ejecuta en **2026-2** con talleres presenciales (actividades 3 y 5) y guía rápida en español/wayuunaiki. |
-| **Objetivo Específico 3** (articular los reportes con brigadas y autoridades de salud). | ~40 % | Reportes CSV/PDF y alertas SMS funcionales (capturas [`11`](screenshots/sprint3_reportes/11_reporte_filtros.png)–[`14`](screenshots/sprint3_reportes/14_alertas_pendientes.png)); vista consolidada por ranchería ([`15`](screenshots/sprint3_reportes/15_zonas_riesgo.png)). | La articulación formal con PMA, Fundación Baylor y la Secretaría de Salud se concreta en 2026-2 (actividades 1 y 8 del cronograma). |
+| **Objetivo General del plan de trabajo** (implementar y desplegar NutriLaGuajira en rancherías durante 2027-1). | ~35 % *(preparación técnica)* | Sprint 3 entrega el módulo de **reportes (CSV/PDF) + alertas SMS + zonas en riesgo**, listo para validación en campo. Capturas [`11`](screenshots/sprint3_reportes/11_reporte_filtros.png)–[`15`](screenshots/sprint3_reportes/15_zonas_riesgo.png); 85 pruebas automatizadas. | El 35 % es **preparación técnica verificable**. El 65 % restante son las actividades del cronograma (validación en rancherías, capacitación, articulación) que se ejecutan en **2027-1**. |
+| **Objetivo Específico 1** (validar la app con promotores en 3 rancherías piloto). | ~20 % | Sanity checks en emulador (capturas reales), 85 tests verdes, `flutter analyze` sin issues. | La validación con usuarios reales y en condiciones de campo (luminosidad, conectividad) queda para 2027-1 (actividades 4 y 6 del cronograma). |
+| **Objetivo Específico 2** (capacitar a gestores comunitarios y estudiantes). | 0 % | — | Se ejecuta en **2027-1** con talleres presenciales (actividades 3 y 5) y guía rápida en español/wayuunaiki. |
+| **Objetivo Específico 3** (articular los reportes con brigadas y autoridades de salud). | ~40 % | Reportes CSV/PDF y alertas SMS funcionales (capturas [`11`](screenshots/sprint3_reportes/11_reporte_filtros.png)–[`14`](screenshots/sprint3_reportes/14_alertas_pendientes.png)); vista consolidada por ranchería ([`15`](screenshots/sprint3_reportes/15_zonas_riesgo.png)). | La articulación formal con PMA, Fundación Baylor y la Secretaría de Salud se concreta en 2027-1 (actividades 1 y 8 del cronograma). |
 
 ## Estado del producto al cierre del Sprint 3
 
@@ -62,12 +66,12 @@ interinstitucional, todas en 2026-2.
 - **Zonas en riesgo** (consolidado por ranchería ordenado por criticidad, con
   detalle de casos ROJO y copia de coordenadas).
 
-**Módulos pendientes (Sprint 4 / 2026-2)**
+**Módulos pendientes (Sprint 4 / 2027-1)**
 
 - Talla/Edad y Peso/Edad (requieren tablas OMS por edad + motor + migración).
 - Sincronización por API (`SincronizacionStrategy` ya es la interfaz; solo existe
   `SmsIntentStrategy`).
-- Validación en campo y capacitación (2026-2).
+- Validación en campo y capacitación (2027-1).
 - Fuente TTF opcional para el PDF (hoy Helvetica cubre Latin-1; el guion largo
   U+2014 no y se sustituye por `-`).
 

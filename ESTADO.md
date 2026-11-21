@@ -5,7 +5,7 @@ Documento de traspaso para retomar el trabajo sin reconstruir contexto.
 
 > **Nota honesta.** El Sprint 3 entrega el módulo de **reportes (CSV/PDF),
 > alertas SMS y zonas en riesgo**. La **validación en campo** con promotores se
-> ejecuta en **2026-2**, conforme al plan de trabajo, y no en este sprint.
+> ejecuta en **2027-1**, conforme al plan de trabajo, y no en este sprint.
 
 ---
 
@@ -24,7 +24,7 @@ Alcance funcional: login local, registro de infantes/tutores, evaluación
 antropométrica con **Z Peso/Talla** y semáforo, **captura opcional de GPS**,
 historial, **reportes CSV/PDF**, **alertas SMS** (cola local + intent) y **zonas
 en riesgo**. Pendiente: Talla/Edad, Peso/Edad, sincronización por API, validación
-en campo y capacitación (Sprint 4 / 2026-2).
+en campo y capacitación (Sprint 4 / 2027-1).
 
 ---
 
@@ -160,7 +160,7 @@ existen `FhirMapperService`, `ApiStrategy` ni tests FHIR. La sincronización API
 el enrutamiento SMS a centros de salud pertenecen a esta fase institucional, no
 al Sprint 4 técnico.
 
-### 6.3 Validación en campo y capacitación (2026-2)
+### 6.3 Validación en campo y capacitación (2027-1)
 
 | # | Tarea | Notas |
 |---|---|---|

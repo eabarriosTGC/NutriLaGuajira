@@ -95,7 +95,7 @@ entrega_avance1_nutrilaguajira/
   app de mensajes. No se usa `SEND_SMS` ni `SharedPreferences`.
 - La tabla de referencia es **DEMO** (no las tablas OMS completas); la validación
   clínica final usará las tablas OMS y la Resolución 2465/2016 y 115/2026.
-- La **validación en campo y la capacitación** se ejecutan en **2026-2** según el
+- La **validación en campo y la capacitación** se ejecutan en **2027-1** según el
   plan de trabajo.
 - El APK es **debug** (clave de debug). Para distribución real falta keystore +
   `--release` + `--split-per-abi`.
