@@ -6,15 +6,16 @@ desnutrición infantil en comunidades rurales dispersas de La Guajira, Colombia.
 Proyecto académico — Escuela de Ingeniería de Sistemas. Metodología Scrum
 (3 sprints).
 
-## Estado: Sprints 1, 2 y 3 completos
+## Estado: Sprints 1, 2 y 3 completos · Sprint 4 técnico en curso
 
 | Sprint | Entregado |
 |---|---|
 | **1** | Login local, registro de infantes/tutores, formulario antropométrico, persistencia SQLite offline e historial. |
 | **2** | Z-score Peso/Talla con tabla DEMO, semáforo (verde/amarillo/rojo), captura **opcional de GPS** (alta precisión + fallback offline) y detalle georreferenciado. |
 | **3** | **Reportes CSV/PDF** con filtros, **alertas SMS** con cola local y reintento, y **zonas en riesgo** consolidadas por ranchería. |
+| **4 (técnico, en curso)** | Z **Talla/Edad** y **Peso/Edad** con tabla **DEMO (LMS)**, migración de esquema v4 y reportes/UI con los índices. |
 
-**Calidad actual:** `flutter test` **85/85** · `flutter analyze` **0 issues** ·
+**Calidad actual:** `flutter test` **98/98** · `flutter analyze` **0 issues** ·
 `dart format` sin cambios pendientes.
 
 ## Funcionalidades
@@ -23,12 +24,15 @@ Proyecto académico — Escuela de Ingeniería de Sistemas. Metodología Scrum
 - **Registro** de infantes menores de 5 años y su tutor.
 - **Evaluación antropométrica**: peso, talla, MUAC y edema bilateral.
 - **Z-score Peso/Talla** con tabla DEMO y **semáforo** verde/amarillo/rojo.
+- **Z-scores Talla/Edad y Peso/Edad** (informativos, tabla **DEMO** LMS; no
+  clasifican el semáforo).
 - **Captura opcional de GPS** de la ranchería (lat/lng).
 - **Historial y detalle** de tamizajes.
 - **Reportes CSV**: filtros por fecha/comunidad/estado, UTF-8 con BOM, escape
   RFC 4180, guardado en el sandbox y acciones Compartir/Abrir.
 - **Reportes PDF**: encabezado con filtros aplicados, resumen por semáforo,
-  casos ROJO con coordenadas, pie con la nota de T/E y P/E y vista previa.
+  casos ROJO con **Z P/T, Z T/E, Z P/E** y coordenadas; pie que marca la fuente
+  DEMO; vista previa.
 - **Alertas SMS**: cola local (`alertas_pendientes`), encolado automático al
   registrar una evaluación ROJA, envío por intent `sms:?body=` (sin `SEND_SMS`)
   y reintento de fallidas.
@@ -54,7 +58,7 @@ Protect avisa al instalar, es esperado → "Instalar de todas formas".
 ```bash
 cd entrega_avance1_nutrilaguajira/nutrilaguajira
 flutter pub get
-flutter test      # 85/85
+flutter test      # 98/98
 flutter analyze   # 0 issues
 flutter run       # con un dispositivo o emulador Android conectado
 ```
@@ -87,8 +91,9 @@ entrega_avance1_nutrilaguajira/
 
 ## Limitaciones conocidas (honestas)
 
-- El cálculo cubre **solo Peso/Talla**; **Talla/Edad y Peso/Edad** quedan para el
-  Sprint 4 (requieren tablas OMS por edad + motor + migración).
+- **Talla/Edad y Peso/Edad** ya se calculan con una tabla **DEMO (LMS)**; el
+  reemplazo por la tabla OMS oficial queda como **Gate 1** (post-Sprint 4). El
+  semáforo sigue usando solo P/T, MUAC y edema.
 - La **sincronización por API** no está implementada: `SincronizacionStrategy`
   es la interfaz preparada; hoy solo existe `SmsIntentStrategy`.
 - **SMS sin destinatario** por diseño: el brigadista elige el destinatario en su

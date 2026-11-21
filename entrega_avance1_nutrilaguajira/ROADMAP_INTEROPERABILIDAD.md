@@ -63,7 +63,7 @@ consentimiento extendido y gobernanza**. Por eso este roadmap empieza por
 | Consentimiento extendido | ❌ no existe | el actual cubre la app, no el intercambio |
 | Gobernanza multi-actor | ❌ no existe | quién opera el nodo y quién ve qué |
 
-**Calidad actual del producto:** `flutter test` 85/85, `flutter analyze` 0
+**Calidad actual del producto:** `flutter test` 98/98, `flutter analyze` 0
 issues, `dart format` limpio. La app funciona 100 % offline.
 
 ---
@@ -200,7 +200,8 @@ modelo local: el mapper es una capa de servicios que se ejecuta al sincronizar.
 Estas deudas son independientes de la interoperabilidad y **sí** pueden abordarse
 en el Sprint 4 técnico:
 
-- **Talla/Edad y Peso/Edad** (tablas OMS por edad + motor + migración).
+- **T/E y P/E**: motor + migración implementados con tabla **DEMO**; falta la
+  tabla OMS oficial (**Gate 1**).
 - **`historial_screen`**: `setState` con callback que devuelve un `Future` (deuda
   de mantenimiento detectada en el Sprint 3).
 - **TTF opcional para el PDF** (hoy Helvetica cubre Latin-1; el guion largo

@@ -4,6 +4,10 @@ Capturas tomadas con la app **instalada y ejecutándose** en un emulador Android
 (perfil Pixel, **1080 × 2400 px**, **Android 16 / API 36**), en **modo avión**.
 Los reportes y la cola de alertas son **100 % locales**.
 
+> **Nota de alcance.** Las capturas `11`–`15` son del **Sprint 3**. Talla/Edad y
+> Peso/Edad se incorporaron después (Sprint 4 técnico, tabla **DEMO**); sus
+> capturas se agregarán en el cierre del Sprint 4.
+
 > **Nota metodológica.**
 > - Los archivos se generan en el sandbox de la app (`<documentos>/exports/`) y
 >   solo salen si el usuario pulsa "Compartir". La ruta se muestra **relativa**
@@ -28,7 +32,7 @@ Los reportes y la cola de alertas son **100 % locales**.
 
 | Requerimiento | % | Evidencia | Observación |
 |---|---|---|---|
-| **RF-09** — reporte consolidado filtrable (CSV/PDF) | ~80 % | `11`, `12`, `13`, `15` | CSV y PDF completos con filtros y consolidado por ranchería. Falta Talla/Edad y Peso/Edad (solo Peso/Talla). |
+| **RF-09** — reporte consolidado filtrable (CSV/PDF) | ~80 % | `11`, `12`, `13`, `15` | CSV y PDF completos con filtros y consolidado por ranchería. Talla/Edad y Peso/Edad ya se calculan (tabla DEMO, informativos); falta la tabla OMS oficial (Gate 1). |
 | **RF-10** — alerta SMS / sincronización diferida | ~60 % | `14`, `14b` | Cola local + intent de SMS (`sms:?body=`, sin destinatario ni `SEND_SMS`). El enrutamiento automático y la sincronización por API quedan para Sprint 4. |
 | **RNF-01** — offline | 100 % | `11`–`15` | Reportes y cola funcionan en modo avión. |
 | **RNF-02** — rendimiento | 100 % | tests | 500 registros generan PDF en < 5 s (umbral holgado). |
@@ -53,9 +57,10 @@ Los reportes y la cola de alertas son **100 % locales**.
 
 ## Deudas técnicas conocidas
 
-1. **Talla/Edad y Peso/Edad**: no se calculan (solo Peso/Talla). Requieren tablas
-   OMS por edad + motor + migración → **Sprint 4**. El CSV/PDF exportan esas
-   columnas vacías y el pie del PDF lo declara.
+1. **Talla/Edad y Peso/Edad**: **implementados** con una tabla **DEMO (LMS)**
+   (`assets/who_edad_demo.csv`) a partir del Sprint 4 técnico. Falta reemplazar
+   esa tabla por la OMS oficial (**Gate 1** del roadmap). Las capturas `11`–`15`
+   son del Sprint 3, anteriores a esta funcionalidad.
 2. **Sincronización API real**: no implementada. `SincronizacionStrategy` es la
    interfaz preparada; hoy la única implementación es `SmsIntentStrategy`.
    → **Sprint 4**.

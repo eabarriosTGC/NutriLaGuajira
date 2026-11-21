@@ -1,11 +1,15 @@
 # Estado del proyecto — NutriLaGuajira
 
 Documento de traspaso para retomar el trabajo sin reconstruir contexto.
-Última actualización: **2026-11-17** (Sprint 3 cerrado).
+Última actualización: **2026-11-21** (Sprint 4 técnico — Bloque 1: T/E y P/E DEMO).
 
 > **Nota honesta.** El Sprint 3 entrega el módulo de **reportes (CSV/PDF),
 > alertas SMS y zonas en riesgo**. La **validación en campo** con promotores se
 > ejecuta en **2027-1**, conforme al plan de trabajo, y no en este sprint.
+>
+> **Sprint 4 técnico (en curso).** Talla/Edad y Peso/Edad ya se calculan con una
+> tabla **DEMO (LMS)**; el reemplazo por la tabla OMS oficial es el **Gate 1** del
+> roadmap. El semáforo sigue usando solo P/T + MUAC + edema.
 
 ---
 
@@ -17,14 +21,15 @@ Documento de traspaso para retomar el trabajo sin reconstruir contexto.
 | Rama | `main` |
 | HEAD | `9aba19f` (docs: README con Sprints 1–3 y APK) |
 | Tag / release | `v0.3.0-sprint3` (actual) y `v0.1.0-avance1` (histórico), ambos con `app-debug.apk` adjunto |
-| Estado | **Sprint 1 + Sprint 2 + Sprint 3 completos**: `flutter analyze` limpio, **85/85 tests**, formato limpio |
+| Estado | **Sprint 1 + 2 + 3 completos** + **Sprint 4 técnico en curso** (T/E y P/E DEMO): `flutter analyze` limpio, **98/98 tests**, formato limpio |
 | Evidencias | `entrega_avance1_nutrilaguajira/EVIDENCIAS_SPRINT{2,3}.md` + `screenshots/` |
 
 Alcance funcional: login local, registro de infantes/tutores, evaluación
-antropométrica con **Z Peso/Talla** y semáforo, **captura opcional de GPS**,
-historial, **reportes CSV/PDF**, **alertas SMS** (cola local + intent) y **zonas
-en riesgo**. Pendiente: Talla/Edad, Peso/Edad, sincronización por API, validación
-en campo y capacitación (Sprint 4 / 2027-1).
+antropométrica con **Z Peso/Talla**, **Z Talla/Edad** y **Z Peso/Edad**
+(informativos, tabla DEMO), semáforo, **captura opcional de GPS**, historial,
+**reportes CSV/PDF**, **alertas SMS** y **zonas en riesgo**. Pendiente:
+reemplazar las tablas DEMO por las OMS oficiales (Gate 1), sincronización por API,
+validación en campo y capacitación (2027-1).
 
 ---
 
@@ -35,7 +40,7 @@ git clone https://github.com/eabarriosTGC/NutriLaGuajira.git
 cd NutriLaGuajira/entrega_avance1_nutrilaguajira/nutrilaguajira
 
 flutter pub get
-flutter test        # debe dar 85/85 antes de tocar nada
+flutter test        # debe dar 98/98 antes de tocar nada
 flutter analyze     # debe estar limpio
 dart format --output=none --set-exit-if-changed lib test tool
 
@@ -61,18 +66,21 @@ lib/
   main.dart                 arranque, tema, locale es, pantalla de carga
   app_services.dart         localizador de dependencias + Sesion en memoria
   data/
-    db_nutrilaguajira.dart  esquema v3, semilla, migraciones, carga del CSV
+    db_nutrilaguajira.dart  esquema v4, semilla, migraciones, carga de CSVs
     repositorio.dart        consultas (login, infantes, evaluaciones, reportes,
                             alertas, zonas en riesgo)
     models/                 Nino, Usuario, Evaluacion, ReferenciaWho,
-                            EvaluacionReporte, AlertaPendiente, ResumenZona
+                            ReferenciaEdad, EvaluacionReporte,
+                            AlertaPendiente, ResumenZona
   services/
-    nutricion_service.dart  MOTOR de cálculo P/T (puro: sin Flutter ni SQLite)
+    nutricion_service.dart  MOTOR de cálculo P/T, T/E y P/E (LMS)
     validadores.dart        reglas de formulario (rangos, fecha, edad)
     edad.dart               meses cumplidos
     fechas.dart             formato dd/MM/yyyy (intl)
-    referencias_csv.dart    parser del CSV (Dart puro)
-    referencias_loader.dart acceso al asset
+    referencias_csv.dart    parser del CSV P/T (Dart puro)
+    referencias_loader.dart acceso al asset P/T
+    referencias_edad_csv.dart    parser del CSV LMS por edad (Dart puro)
+    referencias_edad_loader.dart acceso al asset LMS por edad
     localizacion_service.dart GPS opcional (geolocator) + Coordenada
     reporte_csv_service.dart  filtros + CSV (BOM UTF-8, RFC 4180)
     reporte_pdf_service.dart  PDF (encabezado, resumen, casos rojos, pie)
@@ -85,10 +93,14 @@ lib/
                             zonas_riesgo, zona_detalle
   theme/                    tema Material 3 + colores del semáforo
   widgets/componentes.dart  botones, chips, PanelVacio, FilaDato
-test/                       85 pruebas (motor, validadores, widget, SQLite real,
-                            migración, reportes, alertas, zonas)
+test/                       98 pruebas (motor, validadores, widget, SQLite real,
+                            migración, reportes, alertas, zonas, T/E-P/E)
 tool/calcular_demo.dart     recalcula los casos semilla con el motor real
 ```
+
+Assets de referencia: `assets/who_referencia_demo.csv` (P/T **DEMO**) y
+`assets/who_edad_demo.csv` (LMS por edad **DEMO**, reemplazable por la OMS sin
+tocar código).
 
 Dependencias principales: `sqflite, path, intl, geolocator, path_provider,
 share_plus, open_filex, pdf, printing, url_launcher`.
@@ -126,18 +138,18 @@ share_plus, open_filex, pdf, printing, url_launcher`.
 `09553c5` (PDF), `3476dfb` (tabla v3 + servicios de alertas), `5e919b1`
 (pantalla de alertas) + commits de cierre (zonas, menú, docs).
 
-**Calidad:** `flutter test` 85/85, `flutter analyze` 0 issues, `dart format`
+**Calidad:** `flutter test` 98/98, `flutter analyze` 0 issues, `dart format`
 limpio.
 
 ---
 
-## 6. Sprint 4 — PLANIFICADO
+## 6. Sprint 4 — PLANIFICADO (técnico en curso)
 
-### 6.1 Sprint 4 técnico (puede arrancar ya)
+### 6.1 Sprint 4 técnico (en curso)
 
 | # | Tarea | Notas de arranque |
 |---|---|---|
-| 1 | **Talla/Edad y Peso/Edad** | tablas OMS por edad + motor + migración; el CSV/PDF ya reservan las columnas (hoy vacías) |
+| 1 | ~~Talla/Edad y Peso/Edad~~ ✅ **implementados con tabla DEMO (LMS)** | motor + migración v4; CSV/PDF/UI los muestran. El reemplazo por la tabla OMS oficial es el **Gate 1** del roadmap (post-Sprint 4). |
 | 2 | **Tablas OMS completas** | reemplazar `assets/who_referencia_demo.csv`; revisar Resolución 2465/2016 y 115/2026 |
 | 3 | **Corregir `historial_screen`** | `setState` con callback que devuelve un `Future` (deuda detectada en el Sprint 3) |
 | 4 | **TTF opcional para el PDF** | para soportar `—` (U+2014) y otros caracteres fuera de Latin-1 |
@@ -180,8 +192,10 @@ al Sprint 4 técnico.
   centros de salud. Sin `SEND_SMS`, sin `SharedPreferences`.
 - **Sin cifrado local**: los datos de menores están en SQLite en claro. Aceptable
   para prototipo académico, no para producción.
-- **Tabla DEMO**: el cálculo sigue usando `who_referencia_demo` (no las tablas OMS
-  completas); el aviso académico está en "Acerca de".
+- **Tablas DEMO**: el cálculo usa `who_referencia_demo` (P/T) y
+  `who_edad_demo` (T/E y P/E, LMS); no son las tablas OMS completas. El reemplazo
+  por las oficiales es el **Gate 1** del roadmap. El aviso académico está en
+  "Acerca de".
 - **Emulador**: Google Messages abre en modo *onboarding*, por lo que el cuerpo
   del SMS no siempre se ve en el compositor; el intent y el `body` son correctos.
 - **Compañero de equipo**: falta agregarlo como colaborador de GitHub si va a
@@ -192,7 +206,7 @@ al Sprint 4 técnico.
 ## 8. Cómo se verificó (repetir antes de cada entrega)
 
 1. `flutter analyze` → sin observaciones.
-2. `flutter test` → **85/85**.
+2. `flutter test` → **98/98**.
 3. `dart format --set-exit-if-changed lib test tool` → sin cambios.
 4. Emulador: login → registrar infante → evaluación → semáforo → cerrar app →
    reabrir → historial intacto; generar CSV/PDF; encolar y enviar una alerta;
