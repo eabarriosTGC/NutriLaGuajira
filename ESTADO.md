@@ -7,9 +7,10 @@ Documento de traspaso para retomar el trabajo sin reconstruir contexto.
 > alertas SMS y zonas en riesgo**. La **validación en campo** con promotores se
 > ejecuta en **2027-1**, conforme al plan de trabajo, y no en este sprint.
 >
-> **Sprint 4 técnico (en curso).** Talla/Edad y Peso/Edad ya se calculan con una
-> tabla **DEMO (LMS)**; el reemplazo por la tabla OMS oficial es el **Gate 1** del
-> roadmap. El semáforo sigue usando solo P/T + MUAC + edema.
+> **Sprint 4 técnico cerrado (post-entrega).** Talla/Edad y Peso/Edad con tabla
+> **DEMO (LMS)**, `historial_screen` corregido y PDF con TTF local. El plan de
+> trabajo está entregado; la fase de implementación en campo se ejecuta en
+> **2027-1**.
 
 ---
 
@@ -21,7 +22,7 @@ Documento de traspaso para retomar el trabajo sin reconstruir contexto.
 | Rama | `main` |
 | HEAD | `9aba19f` (docs: README con Sprints 1–3 y APK) |
 | Tag / release | `v0.3.0-sprint3` (actual) y `v0.1.0-avance1` (histórico), ambos con `app-debug.apk` adjunto |
-| Estado | **Sprint 1 + 2 + 3 completos** + **Sprint 4 técnico en curso** (T/E-P/E DEMO + historial/TTF): `flutter analyze` limpio, **100/100 tests**, formato limpio |
+| Estado | **Sprint 1 + 2 + 3 completos** + **Sprint 4 técnico COMPLETO** (T/E-P/E DEMO + historial/TTF): `flutter analyze` limpio, **101/101 tests**, formato limpio |
 | Evidencias | `entrega_avance1_nutrilaguajira/EVIDENCIAS_SPRINT{2,3}.md` + `screenshots/` |
 
 Alcance funcional: login local, registro de infantes/tutores, evaluación
@@ -40,7 +41,7 @@ git clone https://github.com/eabarriosTGC/NutriLaGuajira.git
 cd NutriLaGuajira/entrega_avance1_nutrilaguajira/nutrilaguajira
 
 flutter pub get
-flutter test        # debe dar 100/100 antes de tocar nada
+flutter test        # debe dar 101/101 antes de tocar nada
 flutter analyze     # debe estar limpio
 dart format --output=none --set-exit-if-changed lib test tool
 
@@ -138,28 +139,36 @@ share_plus, open_filex, pdf, printing, url_launcher`.
 `09553c5` (PDF), `3476dfb` (tabla v3 + servicios de alertas), `5e919b1`
 (pantalla de alertas) + commits de cierre (zonas, menú, docs).
 
-**Calidad:** `flutter test` 100/100, `flutter analyze` 0 issues, `dart format`
+**Calidad:** `flutter test` 101/101, `flutter analyze` 0 issues, `dart format`
 limpio.
 
 ---
 
-## 6. Sprint 4 — PLANIFICADO (técnico en curso)
+## 6. Sprint 4 técnico — COMPLETO / interoperabilidad BLOQUEADA
 
-### 6.1 Sprint 4 técnico (en curso)
+> **Sprint 4 técnico cerrado.** El plan de trabajo está entregado. La fase de
+> implementación en campo se ejecuta en **2027-1**.
 
-| # | Tarea | Notas de arranque |
+### 6.1 Entregado en el Sprint 4 técnico
+
+| # | Feature | Estado |
 |---|---|---|
-| 1 | ~~Talla/Edad y Peso/Edad~~ ✅ **implementados con tabla DEMO (LMS)** | motor + migración v4; CSV/PDF/UI los muestran. El reemplazo por la tabla OMS oficial es el **Gate 1** del roadmap (post-Sprint 4). |
-| 2 | **Tablas OMS completas** | reemplazar `assets/who_referencia_demo.csv`; revisar Resolución 2465/2016 y 115/2026 |
-| 3 | ~~Corregir `historial_screen`~~ ✅ **corregido** | `_recargar` usa un bloque `setState`; test de refresco sin excepción de framework |
-| 4 | ~~TTF opcional para el PDF~~ ✅ **TTF local (Roboto)** | soporta `—`, `«»`, `¿¡`, tildes y ñ sin red ni Google Fonts |
-| 5 | **Editar / borrar evaluaciones** | hoy solo hay inserción y lectura |
-| 6 | **APK de distribución** | keystore + `--release` + `--split-per-abi` |
+| 1 | Talla/Edad y Peso/Edad con tablas **DEMO (LMS)** + migración v4 | ✅ (100 % DEMO / 40 % oficial) |
+| 2 | `historial_screen` (`setState` con `Future`) | ✅ corregido + 2 tests |
+| 3 | TTF local para el PDF (Roboto; `—`, `«»`, `¿¡`) | ✅ |
 
-### 6.2 Interoperabilidad (post-Sprint 4 / fase institucional) — BLOQUEADO
+### 6.2 Pendientes técnicos post-Sprint 4
 
-No es Sprint 4 y **no se puede resolver escribiendo código todavía**. Depende de
-tres *gates* documentados en
+| # | Tarea | Notas |
+|---|---|---|
+| 1 | Tablas OMS completas (P/T y por edad) | reemplazar los CSV DEMO; es el **Gate 1** del roadmap |
+| 2 | Editar / borrar evaluaciones | hoy solo inserción y lectura |
+| 3 | APK de distribución | keystore + `--release` + `--split-per-abi` |
+
+### 6.3 Interoperabilidad (fase institucional) — BLOQUEADA
+
+No se puede resolver escribiendo código todavía. Depende de tres *gates*
+documentados en
 [`entrega_avance1_nutrilaguajira/ROADMAP_INTEROPERABILIDAD.md`](entrega_avance1_nutrilaguajira/ROADMAP_INTEROPERABILIDAD.md):
 
 1. **Gate 1 — Terminología validada** (CIE-10/11, LOINC/UCUM, perfiles IHCE):
@@ -169,10 +178,9 @@ tres *gates* documentados en
 
 **Regla:** si un gate no se cumple, **no se escribe código** de esa fase. Hoy no
 existen `FhirMapperService`, `ApiStrategy` ni tests FHIR. La sincronización API y
-el enrutamiento SMS a centros de salud pertenecen a esta fase institucional, no
-al Sprint 4 técnico.
+el enrutamiento SMS a centros de salud pertenecen a esta fase institucional.
 
-### 6.3 Validación en campo y capacitación (2027-1)
+### 6.4 Validación en campo y capacitación (2027-1)
 
 | # | Tarea | Notas |
 |---|---|---|
@@ -204,7 +212,7 @@ al Sprint 4 técnico.
 ## 8. Cómo se verificó (repetir antes de cada entrega)
 
 1. `flutter analyze` → sin observaciones.
-2. `flutter test` → **100/100**.
+2. `flutter test` → **101/101**.
 3. `dart format --set-exit-if-changed lib test tool` → sin cambios.
 4. Emulador: login → registrar infante → evaluación → semáforo → cerrar app →
    reabrir → historial intacto; generar CSV/PDF; encolar y enviar una alerta;
