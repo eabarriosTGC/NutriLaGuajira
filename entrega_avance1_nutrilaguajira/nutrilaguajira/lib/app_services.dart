@@ -29,7 +29,8 @@ class AppServices {
     // La tabla DEMO vive en SQLite: el motor se construye desde la base,
     // de modo que reemplazarla no requiere tocar la logica.
     final referencias = await repo.referencias();
-    nutricion = NutricionService(referencias);
+    final referenciasEdad = await repo.referenciasEdad();
+    nutricion = NutricionService(referencias, referenciasEdad: referenciasEdad);
     alertas = AlertaService(repo: repo, estrategia: SmsIntentStrategy());
     _iniciado = true;
   }

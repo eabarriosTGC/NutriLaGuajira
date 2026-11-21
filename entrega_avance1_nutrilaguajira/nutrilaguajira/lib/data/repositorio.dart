@@ -5,6 +5,7 @@ import 'models/alerta_pendiente.dart';
 import 'models/evaluacion.dart';
 import 'models/evaluacion_reporte.dart';
 import 'models/nino.dart';
+import 'models/referencia_edad.dart';
 import 'models/referencia_who.dart';
 import 'models/resumen_zona.dart';
 
@@ -147,6 +148,8 @@ class Repositorio {
              e.muac_cm         AS muac_cm,
              e.edema           AS edema,
              e.z_peso_talla    AS z_peso_talla,
+             e.z_talla_edad    AS z_talla_edad,
+             e.z_peso_edad     AS z_peso_edad,
              e.clasificacion   AS clasificacion,
              e.color           AS color,
              e.lat             AS lat,
@@ -258,5 +261,15 @@ class Repositorio {
       orderBy: 'sexo ASC, talla_cm ASC',
     );
     return filas.map(ReferenciaWho.fromMap).toList();
+  }
+
+  /// Tabla de referencia por edad (LMS) para Talla/Edad y Peso/Edad.
+  Future<List<ReferenciaEdad>> referenciasEdad() async {
+    final base = await _base;
+    final filas = await base.query(
+      DbNutriLaGuajira.tablaReferenciasEdad,
+      orderBy: 'indice ASC, sexo ASC, edad_meses ASC',
+    );
+    return filas.map(ReferenciaEdad.fromMap).toList();
   }
 }

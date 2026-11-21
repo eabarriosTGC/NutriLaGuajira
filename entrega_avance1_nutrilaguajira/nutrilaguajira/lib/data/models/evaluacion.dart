@@ -13,6 +13,8 @@ class Evaluacion {
     required this.muacCm,
     required this.edema,
     required this.zPesoTalla,
+    this.zTallaEdad,
+    this.zPesoEdad,
     required this.clasificacion,
     required this.color,
     required this.observacion,
@@ -32,6 +34,12 @@ class Evaluacion {
   final double muacCm;
   final bool edema;
   final double zPesoTalla;
+
+  /// Z Talla/Edad y Z Peso/Edad (tabla por edad DEMO). Son informativos y
+  /// quedan `null` en evaluaciones anteriores a la migración v4.
+  final double? zTallaEdad;
+  final double? zPesoEdad;
+
   final String clasificacion;
   final String color;
   final String observacion;
@@ -66,6 +74,8 @@ class Evaluacion {
     'muac_cm': muacCm,
     'edema': edema ? 1 : 0,
     'z_peso_talla': zPesoTalla,
+    'z_talla_edad': zTallaEdad,
+    'z_peso_edad': zPesoEdad,
     'clasificacion': clasificacion,
     'color': color,
     'observacion': observacion,
@@ -85,6 +95,8 @@ class Evaluacion {
     muacCm: muacCm,
     edema: edema,
     zPesoTalla: zPesoTalla,
+    zTallaEdad: zTallaEdad,
+    zPesoEdad: zPesoEdad,
     clasificacion: clasificacion,
     color: color,
     observacion: observacion,
@@ -105,6 +117,8 @@ class Evaluacion {
     muacCm: (map['muac_cm'] as num).toDouble(),
     edema: (map['edema'] as num).toInt() == 1,
     zPesoTalla: (map['z_peso_talla'] as num).toDouble(),
+    zTallaEdad: (map['z_talla_edad'] as num?)?.toDouble(),
+    zPesoEdad: (map['z_peso_edad'] as num?)?.toDouble(),
     clasificacion: map['clasificacion'] as String,
     color: map['color'] as String,
     observacion: (map['observacion'] as String?) ?? '',

@@ -7,6 +7,7 @@ import 'package:nutrilaguajira/data/models/evaluacion.dart';
 import 'package:nutrilaguajira/data/models/nino.dart';
 import 'package:nutrilaguajira/data/repositorio.dart';
 import 'package:nutrilaguajira/services/alerta_service.dart';
+import 'package:nutrilaguajira/services/referencias_edad_loader.dart';
 import 'package:nutrilaguajira/services/referencias_loader.dart';
 import 'package:nutrilaguajira/services/sincronizacion_strategy.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
@@ -38,9 +39,13 @@ void main() {
     final referencias = ReferenciasLoader.desdeCsv(
       File('assets/who_referencia_demo.csv').readAsStringSync(),
     );
+    final referenciasEdad = ReferenciasEdadLoader.desdeCsv(
+      File('assets/who_edad_demo.csv').readAsStringSync(),
+    );
     DbNutriLaGuajira.instance.configurarParaPruebas(
       ruta: '${temporal.path}/nutrilaguajira.db',
       referencias: referencias,
+      referenciasEdad: referenciasEdad,
       omitirSemilla: true,
     );
     repo = Repositorio();

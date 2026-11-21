@@ -2,9 +2,11 @@ import 'package:path/path.dart' as p;
 import 'package:sqflite/sqflite.dart';
 
 import 'models/nino.dart';
+import 'models/referencia_edad.dart';
 import 'models/referencia_who.dart';
 import '../services/edad.dart';
 import '../services/nutricion_service.dart';
+import '../services/referencias_edad_loader.dart';
 import '../services/referencias_loader.dart';
 
 /// Acceso a la base de datos local SQLite (sqflite).
@@ -23,17 +25,19 @@ class DbNutriLaGuajira {
   static final DbNutriLaGuajira instance = DbNutriLaGuajira._();
 
   static const String nombreArchivo = 'nutrilaguajira.db';
-  static const int versionEsquema = 3;
+  static const int versionEsquema = 4;
 
   static const String tablaUsuarios = 'usuarios';
   static const String tablaNinos = 'ninos';
   static const String tablaEvaluaciones = 'evaluaciones';
   static const String tablaReferencias = 'who_referencia_demo';
+  static const String tablaReferenciasEdad = 'who_referencia_edad_demo';
   static const String tablaAlertas = 'alertas_pendientes';
 
   Database? _db;
   String? _rutaOverride;
   List<ReferenciaWho>? _referenciasOverride;
+  List<ReferenciaEdad>? _referenciasEdadOverride;
   bool _omitirSemilla = false;
 
   /// Permite a los tests apuntar a una base temporal y usar referencias en
@@ -41,10 +45,12 @@ class DbNutriLaGuajira {
   void configurarParaPruebas({
     String? ruta,
     List<ReferenciaWho>? referencias,
+    List<ReferenciaEdad>? referenciasEdad,
     bool omitirSemilla = false,
   }) {
     _rutaOverride = ruta;
     _referenciasOverride = referencias;
+    _referenciasEdadOverride = referenciasEdad;
     _omitirSemilla = omitirSemilla;
     _db = null;
   }
@@ -77,6 +83,10 @@ class DbNutriLaGuajira {
   /// NOT NULL sin valor por defecto, por eso se agregan como REAL nullable.
   ///
   /// v2 -> v3: tabla `alertas_pendientes` (RF-10). No toca datos existentes.
+  ///
+  /// v3 -> v4: columnas `z_talla_edad`/`z_peso_edad` en `evaluaciones` y tabla
+  /// `who_referencia_edad_demo` (LMS por edad). Las filas viejas quedan en
+  /// `NULL` (se muestran como "N/D"); no se recalculan.
   Future<void> _onUpgrade(Database db, int oldVersion, int newVersion) async {
     if (oldVersion < 2) {
       await db.execute('ALTER TABLE $tablaEvaluaciones ADD COLUMN lat REAL');
@@ -90,6 +100,19 @@ class DbNutriLaGuajira {
       await db.execute(
         'CREATE INDEX idx_alerta_fecha ON $tablaAlertas (fecha_creacion DESC)',
       );
+    }
+    if (oldVersion < 4) {
+      await db.execute(
+        'ALTER TABLE $tablaEvaluaciones ADD COLUMN z_talla_edad REAL',
+      );
+      await db.execute(
+        'ALTER TABLE $tablaEvaluaciones ADD COLUMN z_peso_edad REAL',
+      );
+      await db.execute(_crearTablaReferenciasEdad);
+      final referenciasEdad =
+          _referenciasEdadOverride ??
+          await ReferenciasEdadLoader.cargarDesdeAssets();
+      await _cargarReferenciasEdad(db, referenciasEdad);
     }
   }
 
@@ -110,6 +133,21 @@ class DbNutriLaGuajira {
       FOREIGN KEY (id_infante) REFERENCES $tablaNinos (id) ON DELETE CASCADE,
       FOREIGN KEY (id_evaluacion) REFERENCES $tablaEvaluaciones (id)
         ON DELETE CASCADE
+    )
+  ''';
+
+  /// DDL de la referencia por edad (LMS), compartido por `onCreate` y v4.
+  static const String _crearTablaReferenciasEdad =
+      '''
+    CREATE TABLE $tablaReferenciasEdad (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      indice TEXT NOT NULL,
+      sexo TEXT NOT NULL,
+      edad_meses INTEGER NOT NULL,
+      l REAL NOT NULL,
+      m REAL NOT NULL,
+      s REAL NOT NULL,
+      UNIQUE (indice, sexo, edad_meses)
     )
   ''';
 
@@ -158,6 +196,8 @@ class DbNutriLaGuajira {
         sincronizado INTEGER NOT NULL DEFAULT 0,
         lat REAL,
         lng REAL,
+        z_talla_edad REAL,
+        z_peso_edad REAL,
         FOREIGN KEY (nino_id) REFERENCES $tablaNinos (id) ON DELETE CASCADE
       )
       ''',
@@ -176,6 +216,7 @@ class DbNutriLaGuajira {
       _crearTablaAlertas,
       'CREATE INDEX idx_alerta_estado ON $tablaAlertas (estado)',
       'CREATE INDEX idx_alerta_fecha ON $tablaAlertas (fecha_creacion DESC)',
+      _crearTablaReferenciasEdad,
     ];
 
     for (final sentencia in batch) {
@@ -184,10 +225,14 @@ class DbNutriLaGuajira {
 
     final referencias =
         _referenciasOverride ?? await ReferenciasLoader.cargarDesdeAssets();
+    final referenciasEdad =
+        _referenciasEdadOverride ??
+        await ReferenciasEdadLoader.cargarDesdeAssets();
     await _cargarReferencias(db, referencias);
+    await _cargarReferenciasEdad(db, referenciasEdad);
 
     if (!_omitirSemilla) {
-      await _sembrarDemo(db, referencias);
+      await _sembrarDemo(db, referencias, referenciasEdad);
     }
   }
 
@@ -202,11 +247,26 @@ class DbNutriLaGuajira {
     await lote.commit(noResult: true);
   }
 
+  Future<void> _cargarReferenciasEdad(
+    Database db,
+    List<ReferenciaEdad> referencias,
+  ) async {
+    final lote = db.batch();
+    for (final referencia in referencias) {
+      lote.insert(tablaReferenciasEdad, referencia.toMap());
+    }
+    await lote.commit(noResult: true);
+  }
+
   Future<void> _sembrarDemo(
     Database db,
     List<ReferenciaWho> referencias,
+    List<ReferenciaEdad> referenciasEdad,
   ) async {
-    final servicio = NutricionService(referencias);
+    final servicio = NutricionService(
+      referencias,
+      referenciasEdad: referenciasEdad,
+    );
     final hoy = DateTime.now();
 
     DateTime nacimientoHaceMeses(int meses) =>
@@ -332,6 +392,8 @@ class DbNutriLaGuajira {
       'muac_cm': muacCm,
       'edema': edema ? 1 : 0,
       'z_peso_talla': resultado.zPesoTalla,
+      'z_talla_edad': resultado.zTallaEdad,
+      'z_peso_edad': resultado.zPesoEdad,
       'clasificacion': resultado.clasificacion.etiqueta,
       'color': resultado.clasificacion.clave,
       'observacion': resultado.observacion,

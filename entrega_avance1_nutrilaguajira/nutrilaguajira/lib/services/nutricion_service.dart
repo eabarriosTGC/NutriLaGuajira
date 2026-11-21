@@ -1,3 +1,6 @@
+import 'dart:math' as math;
+
+import '../data/models/referencia_edad.dart';
 import '../data/models/referencia_who.dart';
 
 /// Clasificacion del semaforo nutricional.
@@ -61,6 +64,8 @@ class ResultadoNutricional {
     required this.referencia,
     required this.muacEvaluado,
     required this.edema,
+    this.zTallaEdad,
+    this.zPesoEdad,
   });
 
   final double zPesoTalla;
@@ -77,7 +82,16 @@ class ResultadoNutricional {
 
   final bool edema;
 
+  /// Z Talla/Edad y Z Peso/Edad. Son **informativos**: no cambian el semáforo.
+  /// Quedan `null` si el motor no recibió referencias por edad.
+  final double? zTallaEdad;
+  final double? zPesoEdad;
+
   String get zTexto => zPesoTalla.toStringAsFixed(2);
+
+  String get zTallaEdadTexto => zTallaEdad?.toStringAsFixed(2) ?? 'N/D';
+
+  String get zPesoEdadTexto => zPesoEdad?.toStringAsFixed(2) ?? 'N/D';
 
   /// Texto compacto que se guarda en `evaluaciones.observacion`.
   String get observacion => criterios.join(' | ');
@@ -85,18 +99,26 @@ class ResultadoNutricional {
 
 /// Motor de calculo del Z-score Peso/Talla y del semaforo nutricional.
 ///
-/// No depende de Flutter ni de SQLite: recibe la tabla de referencia por
-/// inyeccion, de modo que la tabla DEMO de este avance pueda reemplazarse por
-/// la tabla OMS completa sin tocar la logica ni las pruebas.
+/// Tambien calcula Talla/Edad y Peso/Edad con referencias LMS por edad, pero
+/// esos indices son **informativos**: el semaforo se clasifica solo con
+/// Peso/Talla + MUAC + edema (regla clinica aprobada).
+///
+/// No depende de Flutter ni de SQLite: recibe las tablas de referencia por
+/// inyeccion, de modo que las tablas DEMO puedan reemplazarse por las OMS
+/// completas sin tocar la logica ni las pruebas.
 class NutricionService {
-  NutricionService(List<ReferenciaWho> referencias)
-    : _referencias = List<ReferenciaWho>.unmodifiable(referencias) {
+  NutricionService(
+    List<ReferenciaWho> referencias, {
+    List<ReferenciaEdad> referenciasEdad = const [],
+  }) : _referencias = List<ReferenciaWho>.unmodifiable(referencias),
+       _referenciasEdad = List<ReferenciaEdad>.unmodifiable(referenciasEdad) {
     if (_referencias.isEmpty) {
       throw ArgumentError('La tabla de referencia no puede estar vacia');
     }
   }
 
   final List<ReferenciaWho> _referencias;
+  final List<ReferenciaEdad> _referenciasEdad;
 
   // Umbrales clinicos del tamizaje (ver especificacion del Avance 1).
   static const double zRojoSevero = -3.0;
@@ -207,6 +229,47 @@ class NutricionService {
     );
   }
 
+  /// Busca la fila LMS para un índice, sexo y mes exacto (0..59).
+  ///
+  /// Devuelve `null` si el motor no recibió referencias por edad. Lanza
+  /// [StateError] si hay referencias pero falta la combinación pedida.
+  ReferenciaEdad? referenciaEdadPara({
+    required IndiceAntropometrico indice,
+    required String sexo,
+    required int edadMeses,
+  }) {
+    if (_referenciasEdad.isEmpty) return null;
+    final sexoNormalizado = sexo.toUpperCase();
+    for (final referencia in _referenciasEdad) {
+      if (referencia.indice == indice &&
+          referencia.sexo == sexoNormalizado &&
+          referencia.edadMeses == edadMeses) {
+        return referencia;
+      }
+    }
+    throw StateError(
+      'La tabla por edad no contiene ${indice.clave} para sexo '
+      '"$sexoNormalizado" y $edadMeses meses',
+    );
+  }
+
+  /// Z-score LMS: `((X/M)^L - 1) / (L*S)`, o `ln(X/M)/S` cuando `L = 0`.
+  ///
+  /// Con la tabla DEMO (`L = 1`) se reduce a `(X - M) / S`. Al reemplazar el CSV
+  /// por las tablas OMS oficiales (también LMS) no hay que tocar esta fórmula.
+  static double zLms({
+    required double x,
+    required double l,
+    required double m,
+    required double s,
+  }) {
+    if (x <= 0 || m <= 0 || s <= 0) {
+      throw StateError('Valores LMS invalidos (x=$x, m=$m, s=$s)');
+    }
+    if (l.abs() < 1e-9) return math.log(x / m) / s;
+    return (math.pow(x / m, l) - 1) / (l * s);
+  }
+
   /// Calcula el Z-score Peso/Talla y clasifica el semaforo.
   ///
   /// Reglas (Avance 1):
@@ -253,6 +316,40 @@ class NutricionService {
       'Z Peso/Talla = ${z.toStringAsFixed(2)} -> ${porZ.etiqueta}.',
     );
 
+    // T/E y P/E: se calculan con LMS y se reportan, pero NO clasifican.
+    double? zTallaEdad;
+    double? zPesoEdad;
+    if (_referenciasEdad.isNotEmpty) {
+      final refTe = referenciaEdadPara(
+        indice: IndiceAntropometrico.tallaEdad,
+        sexo: sexo,
+        edadMeses: edadMeses,
+      )!;
+      final refPe = referenciaEdadPara(
+        indice: IndiceAntropometrico.pesoEdad,
+        sexo: sexo,
+        edadMeses: edadMeses,
+      )!;
+      zTallaEdad = zLms(x: tallaCm, l: refTe.l, m: refTe.m, s: refTe.s);
+      zPesoEdad = zLms(x: pesoKg, l: refPe.l, m: refPe.m, s: refPe.s);
+      criterios.add(
+        'T/E: ${tallaCm.toStringAsFixed(1)} cm con M '
+        '${refTe.m.toStringAsFixed(2)} y S ${refTe.s.toStringAsFixed(2)} '
+        '(L ${refTe.l.toStringAsFixed(2)}) -> Z = '
+        '${zTallaEdad.toStringAsFixed(2)} (informativo, no clasifica).',
+      );
+      criterios.add(
+        'P/E: ${pesoKg.toStringAsFixed(2)} kg con M '
+        '${refPe.m.toStringAsFixed(2)} y S ${refPe.s.toStringAsFixed(2)} '
+        '(L ${refPe.l.toStringAsFixed(2)}) -> Z = '
+        '${zPesoEdad.toStringAsFixed(2)} (informativo, no clasifica).',
+      );
+    } else {
+      criterios.add(
+        'T/E y P/E no calculados: no se cargaron referencias por edad.',
+      );
+    }
+
     var clasificacion = porZ;
     var muacEvaluado = false;
 
@@ -288,6 +385,8 @@ class NutricionService {
       referencia: referencia,
       muacEvaluado: muacEvaluado,
       edema: edema,
+      zTallaEdad: zTallaEdad,
+      zPesoEdad: zPesoEdad,
     );
   }
 

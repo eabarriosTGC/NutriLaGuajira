@@ -1,8 +1,10 @@
 import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
+import 'package:nutrilaguajira/data/models/referencia_edad.dart';
 import 'package:nutrilaguajira/data/models/referencia_who.dart';
 import 'package:nutrilaguajira/services/nutricion_service.dart';
+import 'package:nutrilaguajira/services/referencias_edad_loader.dart';
 import 'package:nutrilaguajira/services/referencias_loader.dart';
 
 /// Pruebas del motor de cálculo.
@@ -11,12 +13,20 @@ import 'package:nutrilaguajira/services/referencias_loader.dart';
 /// tabla DEMO estas pruebas detectan el efecto sobre la clasificación.
 void main() {
   late List<ReferenciaWho> referencias;
+  late List<ReferenciaEdad> referenciasEdad;
   late NutricionService servicio;
+  late NutricionService servicioEdad;
 
   setUpAll(() {
     final csv = File('assets/who_referencia_demo.csv').readAsStringSync();
     referencias = ReferenciasLoader.desdeCsv(csv);
+    final csvEdad = File('assets/who_edad_demo.csv').readAsStringSync();
+    referenciasEdad = ReferenciasEdadLoader.desdeCsv(csvEdad);
     servicio = NutricionService(referencias);
+    servicioEdad = NutricionService(
+      referencias,
+      referenciasEdad: referenciasEdad,
+    );
   });
 
   group('tabla de referencia DEMO', () {
@@ -239,6 +249,116 @@ void main() {
         ),
         throwsStateError,
       );
+    });
+  });
+
+  group('T/E y P/E (tabla DEMO, informativos)', () {
+    test('calcula T/E y P/E en la mediana (Z = 0)', () {
+      final resultado = servicioEdad.evaluar(
+        sexo: 'M',
+        edadMeses: 12,
+        pesoKg: 9.60,
+        tallaCm: 75.70,
+        muacCm: 13.5,
+        edema: false,
+      );
+
+      expect(resultado.zTallaEdad, closeTo(0, 1e-9));
+      expect(resultado.zPesoEdad, closeTo(0, 1e-9));
+      expect(resultado.clasificacion, ClasificacionNutricional.verde);
+    });
+
+    test('T/E y P/E no alteran el semáforo', () {
+      // Talla muy baja para la edad (T/E muy negativo) pero P/T normal.
+      final resultado = servicioEdad.evaluar(
+        sexo: 'M',
+        edadMeses: 12,
+        pesoKg: 9.5,
+        tallaCm: 60,
+        muacCm: 13.5,
+        edema: false,
+      );
+
+      expect(resultado.zTallaEdad, lessThan(-3));
+      expect(resultado.clasificacion, ClasificacionNutricional.verde);
+    });
+
+    test('sin referencias por edad, T/E y P/E son null', () {
+      final resultado = servicio.evaluar(
+        sexo: 'M',
+        edadMeses: 12,
+        pesoKg: 9.5,
+        tallaCm: 75,
+        muacCm: 13.5,
+        edema: false,
+      );
+
+      expect(resultado.zTallaEdad, isNull);
+      expect(resultado.zPesoEdad, isNull);
+      expect(resultado.observacion, contains('no calculados'));
+    });
+
+    test('soporta L != 0 en la fórmula LMS', () {
+      final custom = <ReferenciaEdad>[
+        const ReferenciaEdad(
+          indice: IndiceAntropometrico.tallaEdad,
+          sexo: 'M',
+          edadMeses: 12,
+          l: 2,
+          m: 10,
+          s: 0.1,
+        ),
+        const ReferenciaEdad(
+          indice: IndiceAntropometrico.pesoEdad,
+          sexo: 'M',
+          edadMeses: 12,
+          l: 2,
+          m: 10,
+          s: 0.1,
+        ),
+      ];
+      final servicioCustom = NutricionService(
+        referencias,
+        referenciasEdad: custom,
+      );
+
+      final resultado = servicioCustom.evaluar(
+        sexo: 'M',
+        edadMeses: 12,
+        pesoKg: 11,
+        tallaCm: 11,
+        muacCm: 13,
+        edema: false,
+        validarRangos: false,
+      );
+
+      // ((11/10)^2 - 1) / (2 * 0.1) = 1.05
+      expect(resultado.zTallaEdad, closeTo(1.05, 1e-9));
+      expect(resultado.zPesoEdad, closeTo(1.05, 1e-9));
+    });
+
+    test('cubre los bordes de edad 0 y 59 meses', () {
+      final enCero = servicioEdad.evaluar(
+        sexo: 'M',
+        edadMeses: 0,
+        pesoKg: 3.3,
+        tallaCm: 49.9,
+        muacCm: 10,
+        edema: false,
+      );
+      final enCincuentaYNueve = servicioEdad.evaluar(
+        sexo: 'M',
+        edadMeses: 59,
+        pesoKg: 18.3,
+        tallaCm: 110,
+        muacCm: 13.5,
+        edema: false,
+      );
+
+      expect(enCero.zTallaEdad, isNotNull);
+      expect(enCero.zPesoEdad, isNotNull);
+      expect(enCincuentaYNueve.zTallaEdad, isNotNull);
+      expect(enCincuentaYNueve.zPesoEdad, isNotNull);
     });
   });
 }

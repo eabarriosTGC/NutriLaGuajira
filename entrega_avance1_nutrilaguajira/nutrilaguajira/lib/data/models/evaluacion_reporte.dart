@@ -53,12 +53,10 @@ class EvaluacionReporte {
   /// Clave persistida: 'verde' / 'amarillo' / 'rojo' (para filtros).
   final String color;
 
-  /// TODO(sprint4): Talla/Edad no se calcula todavía (requiere tablas OMS por
-  /// edad). Se deja nulo y el CSV lo exporta como celda vacía.
+  /// Z Talla/Edad (tabla por edad DEMO). Nulo en evaluaciones anteriores a v4.
   final double? zTallaEdad;
 
-  /// TODO(sprint4): Peso/Edad no se calcula todavía (requiere tablas OMS por
-  /// edad). Se deja nulo y el CSV lo exporta como celda vacía.
+  /// Z Peso/Edad (tabla por edad DEMO). Nulo en evaluaciones anteriores a v4.
   final double? zPesoEdad;
 
   final double? latitud;
@@ -97,6 +95,8 @@ class EvaluacionReporte {
         perimetroBraquialCm: (map['muac_cm'] as num).toDouble(),
         edema: (map['edema'] as num).toInt() == 1,
         zPesoTalla: (map['z_peso_talla'] as num).toDouble(),
+        zTallaEdad: (map['z_talla_edad'] as num?)?.toDouble(),
+        zPesoEdad: (map['z_peso_edad'] as num?)?.toDouble(),
         clasificacionNutricional: map['clasificacion'] as String,
         color: map['color'] as String,
         latitud: (map['lat'] as num?)?.toDouble(),

@@ -4,6 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:nutrilaguajira/data/db_nutrilaguajira.dart';
 import 'package:nutrilaguajira/data/models/evaluacion.dart';
 import 'package:nutrilaguajira/data/repositorio.dart';
+import 'package:nutrilaguajira/services/referencias_edad_loader.dart';
 import 'package:nutrilaguajira/services/referencias_loader.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
@@ -24,9 +25,13 @@ void main() {
     final referencias = ReferenciasLoader.desdeCsv(
       File('assets/who_referencia_demo.csv').readAsStringSync(),
     );
+    final referenciasEdad = ReferenciasEdadLoader.desdeCsv(
+      File('assets/who_edad_demo.csv').readAsStringSync(),
+    );
     DbNutriLaGuajira.instance.configurarParaPruebas(
       ruta: '${temporal.path}/nutrilaguajira.db',
       referencias: referencias,
+      referenciasEdad: referenciasEdad,
       omitirSemilla: omitirSemilla,
     );
     repo = Repositorio();
@@ -63,6 +68,15 @@ void main() {
       expect(conEdema.single.zPesoTalla, greaterThan(-1));
     },
   );
+
+  test('la semilla calcula Z Talla/Edad y Z Peso/Edad', () async {
+    final historial = await repo.historial();
+    expect(historial, isNotEmpty);
+    for (final evaluacion in historial) {
+      expect(evaluacion.zTallaEdad, isNotNull);
+      expect(evaluacion.zPesoEdad, isNotNull);
+    }
+  });
 
   test('la tabla de referencia se carga desde el CSV a SQLite', () async {
     final referencias = await repo.referencias();
@@ -234,6 +248,9 @@ void main() {
     // Abre con el esquema actual (v2): dispara onUpgrade.
     DbNutriLaGuajira.instance.configurarParaPruebas(
       ruta: ruta,
+      referenciasEdad: ReferenciasEdadLoader.desdeCsv(
+        File('assets/who_edad_demo.csv').readAsStringSync(),
+      ),
       omitirSemilla: true,
     );
     final db = await DbNutriLaGuajira.instance.bd;
