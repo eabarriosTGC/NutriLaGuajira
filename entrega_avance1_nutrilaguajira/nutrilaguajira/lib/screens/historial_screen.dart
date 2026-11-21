@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../app_services.dart';
 import '../data/models/evaluacion.dart';
+import '../data/repositorio.dart';
 import '../services/fechas.dart';
 import '../theme/semaforo.dart';
 import '../widgets/componentes.dart';
@@ -10,24 +11,30 @@ import 'seleccion_nino_screen.dart';
 
 /// Historial de tamizajes, del más reciente al más antiguo.
 class HistorialScreen extends StatefulWidget {
-  const HistorialScreen({super.key});
+  const HistorialScreen({super.key, this.repo});
+
+  /// Inyectable para pruebas; por defecto usa el repositorio de la app.
+  final Repositorio? repo;
 
   @override
   State<HistorialScreen> createState() => _HistorialScreenState();
 }
 
 class _HistorialScreenState extends State<HistorialScreen> {
+  late final Repositorio _repo = widget.repo ?? AppServices.repo;
   late Future<List<Evaluacion>> _futuro;
 
   @override
   void initState() {
     super.initState();
-    _futuro = AppServices.repo.historial();
+    _futuro = _repo.historial();
   }
 
   Future<void> _recargar() async {
-    final nuevo = AppServices.repo.historial();
-    setState(() => _futuro = nuevo);
+    final nuevo = _repo.historial();
+    setState(() {
+      _futuro = nuevo;
+    });
     await nuevo;
   }
 
