@@ -18,6 +18,8 @@ void main() {
     double? lat,
     double? lng,
     DateTime? fecha,
+    double? zTallaEdad,
+    double? zPesoEdad,
   }) => EvaluacionReporte(
     idEvaluacion: id,
     idInfante: id,
@@ -36,6 +38,8 @@ void main() {
     color: color,
     latitud: lat,
     longitud: lng,
+    zTallaEdad: zTallaEdad,
+    zPesoEdad: zPesoEdad,
   );
 
   ReporteFiltros filtros() => ReporteFiltros(
@@ -99,6 +103,22 @@ void main() {
     expect(bytes, isNotEmpty);
     expect(esPdf(bytes), isTrue);
     expect(cronometro.elapsed, lessThan(const Duration(seconds: 5)));
+  });
+
+  test('genera PDF con T/E y P/E no nulos', () async {
+    final bytes = await servicio.generar([
+      evaluacion(
+        id: 1,
+        color: 'rojo',
+        clasificacion: 'ROJO',
+        z: -2.27,
+        zTallaEdad: -2.1,
+        zPesoEdad: -1.4,
+      ),
+    ], filtros());
+
+    expect(bytes, isNotEmpty);
+    expect(esPdf(bytes), isTrue);
   });
 
   test('lanza ArgumentError si no hay evaluaciones que reportar', () async {

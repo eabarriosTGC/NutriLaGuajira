@@ -91,6 +91,16 @@ class DetalleEvaluacionScreen extends StatelessWidget {
                       icono: Icons.child_care,
                     ),
                     FilaDato(
+                      etiqueta: 'Z Talla/Edad',
+                      valor: evaluacion.zTallaEdad?.toStringAsFixed(2) ?? 'N/D',
+                      icono: Icons.height,
+                    ),
+                    FilaDato(
+                      etiqueta: 'Z Peso/Edad',
+                      valor: evaluacion.zPesoEdad?.toStringAsFixed(2) ?? 'N/D',
+                      icono: Icons.monitor_weight_outlined,
+                    ),
+                    FilaDato(
                       etiqueta: 'Peso',
                       valor: '${evaluacion.pesoKg.toStringAsFixed(2)} kg',
                       icono: Icons.monitor_weight_outlined,

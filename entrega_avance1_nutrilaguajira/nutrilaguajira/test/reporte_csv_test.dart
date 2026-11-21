@@ -28,6 +28,8 @@ void main() {
     String color = 'verde',
     double? lat,
     double? lng,
+    double? zTallaEdad,
+    double? zPesoEdad,
   }) => EvaluacionReporte(
     idEvaluacion: idEvaluacion,
     idInfante: idInfante,
@@ -46,6 +48,8 @@ void main() {
     color: color,
     latitud: lat,
     longitud: lng,
+    zTallaEdad: zTallaEdad,
+    zPesoEdad: zPesoEdad,
   );
 
   ReporteFiltros filtros({
@@ -182,6 +186,16 @@ void main() {
     expect(celdas[4], 'M');
     expect(celdas[15], '11.24712');
     expect(celdas[16], '-72.98765');
+  });
+
+  test('exporta T/E y P/E cuando existen', () {
+    final csv = servicio.generar([
+      evaluacion(zTallaEdad: -1.50, zPesoEdad: -0.80),
+    ], filtros());
+    final celdas = lineas(csv)[1].split(',');
+
+    expect(celdas[12], '-1.50');
+    expect(celdas[13], '-0.80');
   });
 
   test('lanza ArgumentError con mensaje claro si fin < inicio', () {

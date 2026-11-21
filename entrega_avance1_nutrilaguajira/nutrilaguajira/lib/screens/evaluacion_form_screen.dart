@@ -117,6 +117,8 @@ class _EvaluacionFormScreenState extends State<EvaluacionFormScreen> {
         muacCm: muac,
         edema: _edema,
         zPesoTalla: resultado.zPesoTalla,
+        zTallaEdad: resultado.zTallaEdad,
+        zPesoEdad: resultado.zPesoEdad,
         clasificacion: resultado.clasificacion.etiqueta,
         color: resultado.clasificacion.clave,
         observacion: resultado.observacion,

@@ -14,10 +14,9 @@ import 'reporte_csv_service.dart';
 /// Generador de reportes PDF (RF-09).
 ///
 /// - 100 % local (RNF-01): no usa red.
-/// - Usa la fuente Helvetica incorporada, que cubre el juego Latin-1/WinAnsi
-///   (tildes, ñ, ¿, —, ·), suficiente para el español.
-/// - El PDF incluye encabezado, resumen por semáforo, casos críticos (rojo)
-///   con coordenadas y un pie con la nota de T/E y P/E.
+/// - Usa la fuente Helvetica incorporada, que cubre Latin-1 (tildes, ñ, ¿, ·).
+/// - Incluye encabezado, resumen por semáforo y casos críticos (rojo) con
+///   Z P/T, Z T/E, Z P/E y coordenadas. El pie marca la fuente DEMO.
 class ReportePdfService {
   /// Construye el PDF de las evaluaciones que cumplen [filtros].
   ///
@@ -70,8 +69,7 @@ class ReportePdfService {
             ),
             pw.SizedBox(height: 2),
             pw.Text(
-              'Nota: Talla/Edad y Peso/Edad no se calculan en esta versión; '
-              'solo Peso/Talla. Ver README del repo.',
+              'Fuente: tabla DEMO sin validez clínica - ver README del repo.',
               style: pw.TextStyle(
                 font: regular,
                 fontSize: 8,
@@ -161,6 +159,8 @@ class ReportePdfService {
                 'Ranchería',
                 'Fecha',
                 'Z P/T',
+                'Z T/E',
+                'Z P/E',
                 'Coordenadas',
               ],
               data: [
@@ -170,6 +170,8 @@ class ReportePdfService {
                     e.rancheria,
                     e.fechaEvaluacionTexto,
                     e.zPesoTalla.toStringAsFixed(2),
+                    e.zTallaEdad?.toStringAsFixed(2) ?? 'N/D',
+                    e.zPesoEdad?.toStringAsFixed(2) ?? 'N/D',
                     e.tieneUbicacion
                         ? '${e.latitud!.toStringAsFixed(5)}, '
                               '${e.longitud!.toStringAsFixed(5)}'
@@ -178,18 +180,20 @@ class ReportePdfService {
               ],
               headerStyle: pw.TextStyle(
                 font: negrita,
-                fontSize: 9,
+                fontSize: 8,
                 color: PdfColors.white,
               ),
-              cellStyle: pw.TextStyle(font: regular, fontSize: 8),
+              cellStyle: pw.TextStyle(font: regular, fontSize: 7.5),
               headerDecoration: pw.BoxDecoration(color: rojo),
-              cellPadding: const pw.EdgeInsets.all(4),
+              cellPadding: const pw.EdgeInsets.all(3),
               columnWidths: {
-                0: const pw.FlexColumnWidth(2.6),
-                1: const pw.FlexColumnWidth(2.2),
-                2: const pw.FlexColumnWidth(1.9),
-                3: const pw.FlexColumnWidth(1.0),
-                4: const pw.FlexColumnWidth(2.0),
+                0: const pw.FlexColumnWidth(2.3),
+                1: const pw.FlexColumnWidth(2.0),
+                2: const pw.FlexColumnWidth(1.7),
+                3: const pw.FlexColumnWidth(0.8),
+                4: const pw.FlexColumnWidth(0.8),
+                5: const pw.FlexColumnWidth(0.8),
+                6: const pw.FlexColumnWidth(1.8),
               },
             ),
           pw.SizedBox(height: 10),

@@ -123,6 +123,26 @@ class ResultadoScreen extends StatelessWidget {
                     ),
                     const SizedBox(height: 8),
                     FilaDato(
+                      etiqueta: 'Z Talla/Edad',
+                      valor: resultado.zTallaEdadTexto,
+                      icono: Icons.height,
+                    ),
+                    FilaDato(
+                      etiqueta: 'Z Peso/Edad',
+                      valor: resultado.zPesoEdadTexto,
+                      icono: Icons.monitor_weight_outlined,
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      'T/E y P/E son informativos; el semáforo usa P/T, MUAC y '
+                      'edema.',
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: esquema.onSurfaceVariant,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    FilaDato(
                       etiqueta: 'Peso',
                       valor: '${evaluacion.pesoKg.toStringAsFixed(2)} kg',
                       icono: Icons.monitor_weight_outlined,

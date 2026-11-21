@@ -186,8 +186,8 @@ class ReporteCsvService {
     e.perimetroBraquialCm.toStringAsFixed(1),
     e.edema ? 'Sí' : 'No',
     e.zPesoTalla.toStringAsFixed(2),
-    '', // TODO(sprint4): z_talla_edad — T/E no se calcula en esta versión.
-    '', // TODO(sprint4): z_peso_edad — P/E no se calcula en esta versión.
+    e.zTallaEdad?.toStringAsFixed(2) ?? '',
+    e.zPesoEdad?.toStringAsFixed(2) ?? '',
     e.clasificacionNutricional,
     e.latitud?.toStringAsFixed(5) ?? '',
     e.longitud?.toStringAsFixed(5) ?? '',
