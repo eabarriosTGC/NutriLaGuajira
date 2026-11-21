@@ -17,6 +17,11 @@ class _RepoHistorialFalso extends Repositorio {
   }
 }
 
+class _RepoHistorialVacio extends Repositorio {
+  @override
+  Future<List<Evaluacion>> historial({int? ninoId}) async => const [];
+}
+
 Evaluacion _evaluacion(int id) => Evaluacion(
   id: id,
   ninoId: id,
@@ -65,5 +70,24 @@ void main() {
     expect(tester.takeException(), isNull);
     expect(find.text('Infante 1'), findsOneWidget);
     expect(find.text('Infante 2'), findsOneWidget);
+  });
+
+  testWidgets('el historial vacío muestra el estado vacío', (tester) async {
+    tester.view.physicalSize = const Size(1000, 2400);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(() {
+      tester.view.resetPhysicalSize();
+      tester.view.resetDevicePixelRatio();
+    });
+
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: construirTema(Brightness.light),
+        home: HistorialScreen(repo: _RepoHistorialVacio()),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.text('Sin tamizajes registrados'), findsOneWidget);
   });
 }
