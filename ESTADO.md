@@ -133,16 +133,40 @@ limpio.
 
 ## 6. Sprint 4 — PLANIFICADO
 
+### 6.1 Sprint 4 técnico (puede arrancar ya)
+
 | # | Tarea | Notas de arranque |
 |---|---|---|
 | 1 | **Talla/Edad y Peso/Edad** | tablas OMS por edad + motor + migración; el CSV/PDF ya reservan las columnas (hoy vacías) |
-| 2 | **Sincronización API** | implementar `ApiStrategy` sobre `SincronizacionStrategy`; definir backend, conflictos y cifrado antes de mover datos de menores |
-| 3 | **Enrutamiento SMS a centros de salud** | requiere API o configuración de destinatarios; hoy el brigadista elige el destinatario |
-| 4 | **Tablas OMS completas** | reemplazar `assets/who_referencia_demo.csv`; revisar Resolución 2465/2016 y 115/2026 |
-| 5 | **TTF opcional para el PDF** | para soportar `—` (U+2014) y otros caracteres fuera de Latin-1 |
-| 6 | **Editar / borrar evaluaciones** | hoy solo hay inserción y lectura |
-| 7 | **APK de distribución** | keystore + `--release` + `--split-per-abi` |
-| 8 | **Validación en campo y capacitación** | 2026-2, con promotores y Uniguajira |
+| 2 | **Tablas OMS completas** | reemplazar `assets/who_referencia_demo.csv`; revisar Resolución 2465/2016 y 115/2026 |
+| 3 | **Corregir `historial_screen`** | `setState` con callback que devuelve un `Future` (deuda detectada en el Sprint 3) |
+| 4 | **TTF opcional para el PDF** | para soportar `—` (U+2014) y otros caracteres fuera de Latin-1 |
+| 5 | **Editar / borrar evaluaciones** | hoy solo hay inserción y lectura |
+| 6 | **APK de distribución** | keystore + `--release` + `--split-per-abi` |
+
+### 6.2 Interoperabilidad (post-Sprint 4 / fase institucional) — BLOQUEADO
+
+No es Sprint 4 y **no se puede resolver escribiendo código todavía**. Depende de
+tres *gates* documentados en
+[`entrega_avance1_nutrilaguajira/ROADMAP_INTEROPERABILIDAD.md`](entrega_avance1_nutrilaguajira/ROADMAP_INTEROPERABILIDAD.md):
+
+1. **Gate 1 — Terminología validada** (CIE-10/11, LOINC/UCUM, perfiles IHCE):
+   desbloquea el esqueleto de `FhirMapperService` + tests.
+2. **Gate 2 — Socio con endpoint sandbox:** desbloquea `ApiStrategy` real + outbox.
+3. **Gate 3 — Consentimiento extendido aprobado:** desbloquea el envío real.
+
+**Regla:** si un gate no se cumple, **no se escribe código** de esa fase. Hoy no
+existen `FhirMapperService`, `ApiStrategy` ni tests FHIR. La sincronización API y
+el enrutamiento SMS a centros de salud pertenecen a esta fase institucional, no
+al Sprint 4 técnico.
+
+### 6.3 Validación en campo y capacitación (2026-2)
+
+| # | Tarea | Notas |
+|---|---|---|
+| 1 | Validación en 3 rancherías piloto (Manaure/Uribia) | con promotores y Uniguajira |
+| 2 | Capacitación de gestores y estudiantes | talleres + guía en español/wayuunaiki |
+| 3 | Articulación con PMA, Baylor y Secretaría | canales de notificación y brigadas |
 
 ---
 
