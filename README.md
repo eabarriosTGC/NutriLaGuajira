@@ -91,6 +91,7 @@ Credenciales demo: usuario `promotor`, contraseña `demo123`.
 - [`entrega_avance1_nutrilaguajira/EVIDENCIAS_SPRINT3.md`](entrega_avance1_nutrilaguajira/EVIDENCIAS_SPRINT3.md) — resumen 6.1 y evidencias 6.2 del Sprint 3.
 - [`entrega_avance1_nutrilaguajira/EVIDENCIAS_SPRINT4.md`](entrega_avance1_nutrilaguajira/EVIDENCIAS_SPRINT4.md) — cierre técnico post-entrega (T/E, P/E, historial y TTF).
 - [`entrega_avance1_nutrilaguajira/ROADMAP_INTEROPERABILIDAD.md`](entrega_avance1_nutrilaguajira/ROADMAP_INTEROPERABILIDAD.md) — fases y gates de interoperabilidad (post-Sprint 4).
+- [`entrega_avance1_nutrilaguajira/fase_campo/`](entrega_avance1_nutrilaguajira/fase_campo/README.md) — materiales para 2027-1: protocolo de validación, guía del promotor, guía wayuunaiki (plantilla), capacitación, consentimiento e instrumentos.
 - [`entrega_avance1_nutrilaguajira/screenshots/`](entrega_avance1_nutrilaguajira/screenshots/) — capturas (`sprint2_gps/`, `sprint3_reportes/` y `sprint4_te_pe/`).
 - [`entrega_avance1_nutrilaguajira/`](entrega_avance1_nutrilaguajira/) — informe, guion de demo y proyecto Flutter completo.
 
@@ -105,6 +106,7 @@ entrega_avance1_nutrilaguajira/
   EVIDENCIAS_SPRINT3.md         evidencias reportes/alertas/zonas
   EVIDENCIAS_SPRINT4.md         cierre técnico: T/E, P/E, historial y TTF
   ROADMAP_INTEROPERABILIDAD.md  fases y gates post-Sprint 4
+  fase_campo/                   materiales 2027-1 (protocolo, guías, capacitación, consentimiento, instrumentos)
   informe_avance1.md            informe del avance
   demo_script.md                guion de exposición
   screenshots/                  capturas reales (sprint2_gps, sprint3_reportes, sprint4_te_pe)

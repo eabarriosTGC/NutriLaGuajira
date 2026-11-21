@@ -1,7 +1,7 @@
 # Estado del proyecto — NutriLaGuajira
 
 Documento de traspaso para retomar el trabajo sin reconstruir contexto.
-Última actualización: **2026-11-21** (Sprint 4 técnico — Bloques 1–2: T/E-P/E DEMO + historial/TTF).
+Última actualización: **2026-11-21** (Sprint 4 técnico cerrado + APK `v0.4.0-sprint4` + borradores de la fase de campo 2027-1).
 
 > **Nota honesta.** El Sprint 3 entrega el módulo de **reportes (CSV/PDF),
 > alertas SMS y zonas en riesgo**. La **validación en campo** con promotores se
@@ -21,10 +21,10 @@ Documento de traspaso para retomar el trabajo sin reconstruir contexto.
 |---|---|
 | Repo | https://github.com/eabarriosTGC/NutriLaGuajira (público, MIT) |
 | Rama | `main` |
-| HEAD | `9aba19f` (docs: README con Sprints 1–3 y APK) |
+| HEAD | el último commit de `main` (ver `git log -1`); esta tabla no se actualiza en cada commit |
 | Tag / release | `v0.4.0-sprint4` (APK de distribución, release firmado) · `v0.3.0-sprint3` (debug) · `v0.1.0-avance1` (histórico) |
 | Estado | **Sprint 1 + 2 + 3 completos** + **Sprint 4 técnico COMPLETO** (T/E-P/E DEMO + historial/TTF) + **APK de distribución `v0.4.0-sprint4`**: `flutter analyze` limpio, **101/101 tests**, formato limpio |
-| Evidencias | `entrega_avance1_nutrilaguajira/EVIDENCIAS_SPRINT{2,3}.md` + `screenshots/` |
+| Evidencias | `entrega_avance1_nutrilaguajira/EVIDENCIAS_SPRINT{2,3,4}.md` + `screenshots/` |
 
 Alcance funcional: login local, registro de infantes/tutores, evaluación
 antropométrica con **Z Peso/Talla**, **Z Talla/Edad** y **Z Peso/Edad**
@@ -95,7 +95,7 @@ lib/
                             zonas_riesgo, zona_detalle
   theme/                    tema Material 3 + colores del semáforo
   widgets/componentes.dart  botones, chips, PanelVacio, FilaDato
-test/                       98 pruebas (motor, validadores, widget, SQLite real,
+test/                       101 pruebas (motor, validadores, widget, SQLite real,
                             migración, reportes, alertas, zonas, T/E-P/E)
 tool/calcular_demo.dart     recalcula los casos semilla con el motor real
 ```
@@ -182,6 +182,19 @@ existen `FhirMapperService`, `ApiStrategy` ni tests FHIR. La sincronización API
 el enrutamiento SMS a centros de salud pertenecen a esta fase institucional.
 
 ### 6.4 Validación en campo y capacitación (2027-1)
+
+Materiales de trabajo en
+[`entrega_avance1_nutrilaguajira/fase_campo/`](entrega_avance1_nutrilaguajira/fase_campo/README.md)
+(**borradores v0.1**, pendientes de aprobación):
+
+| Documento | Contenido |
+|---|---|
+| `PROTOCOLO_VALIDACION.md` | piloto en 3 rancherías, 8 criterios de éxito, ética y análisis |
+| `GUIA_USUARIO.md` | guía del promotor en español (2 páginas) |
+| `GUIA_USUARIO_WAYUUNAIKI.md` | plantilla bilingüe; **traducción pendiente de hablantes nativos** |
+| `CAPACITACION.md` | taller de 4 h, ejercicios y certificación práctica |
+| `CONSENTIMIENTO_INFORMADO.md` | Ley 1581/8430, datos de menores y transferencia a terceros |
+| `INSTRUMENTOS/` | F1–F6 y plantillas CSV |
 
 | # | Tarea | Notas |
 |---|---|---|
