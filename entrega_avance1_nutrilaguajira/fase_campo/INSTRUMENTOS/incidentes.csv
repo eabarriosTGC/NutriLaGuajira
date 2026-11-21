@@ -1,0 +1,2 @@
+id_incidente,fecha_hora,rancheria,tipo,descripcion,impacto,accion_inmediata,resuelto,responsable
+EJEMPLO-INC-001,2027-02-11T10:30,R1,tecnico,La app se cerró al capturar GPS,no hubo pérdida de datos,Se reabrió y se repitió el tamizaje,S,C

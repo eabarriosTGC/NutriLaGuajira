@@ -1,0 +1,2 @@
+id_observacion,fecha,rancheria,promotor,codigo_nino,caso_planificado,completado_sin_ayuda,tiempo_min,errores_recuperables,errores_criticos,momento_error,notas
+EJEMPLO-OBS-001,2027-02-10,R1,P1,R1-001,rojo_z,S,4.5,1,0,medicion,Confundió gramos con kilogramos y lo corrigió
