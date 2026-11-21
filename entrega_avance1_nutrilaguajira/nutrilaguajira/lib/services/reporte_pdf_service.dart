@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'dart:typed_data';
 
+import 'package:flutter/services.dart' show rootBundle;
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 import 'package:pdf/pdf.dart';
@@ -14,7 +15,8 @@ import 'reporte_csv_service.dart';
 /// Generador de reportes PDF (RF-09).
 ///
 /// - 100 % local (RNF-01): no usa red.
-/// - Usa la fuente Helvetica incorporada, que cubre Latin-1 (tildes, ñ, ¿, ·).
+/// - Usa una TTF local (Roboto, Apache 2.0) con soporte Unicode: tildes, ñ,
+///   ¿, ¡, «», guion largo (—), etc. No depende de servicios externos.
 /// - Incluye encabezado, resumen por semáforo y casos críticos (rojo) con
 ///   Z P/T, Z T/E, Z P/E y coordenadas. El pie marca la fuente DEMO.
 class ReportePdfService {
@@ -38,8 +40,12 @@ class ReportePdfService {
     }
 
     final generadoEn = ahora ?? DateTime.now();
-    final regular = pw.Font.helvetica();
-    final negrita = pw.Font.helveticaBold();
+    final regular = pw.Font.ttf(
+      await rootBundle.load('assets/fonts/Roboto-Regular.ttf'),
+    );
+    final negrita = pw.Font.ttf(
+      await rootBundle.load('assets/fonts/Roboto-Bold.ttf'),
+    );
 
     final total = filas.length;
     final amarillos = filas.where((e) => e.color == 'amarillo').length;
@@ -59,7 +65,7 @@ class ReportePdfService {
           children: [
             pw.Divider(thickness: 0.6, color: PdfColors.grey400),
             pw.Text(
-              'Generado offline - sincronizar cuando haya red · '
+              'Generado offline — sincronizar cuando haya red · '
               '${Fechas.conHora(generadoEn)}',
               style: pw.TextStyle(
                 font: regular,
@@ -69,7 +75,7 @@ class ReportePdfService {
             ),
             pw.SizedBox(height: 2),
             pw.Text(
-              'Fuente: tabla DEMO sin validez clínica - ver README del repo.',
+              'Fuente: tabla DEMO sin validez clínica — ver README del repo.',
               style: pw.TextStyle(
                 font: regular,
                 fontSize: 8,

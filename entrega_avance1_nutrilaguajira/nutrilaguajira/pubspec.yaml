@@ -72,6 +72,8 @@ flutter:
   assets:
     - assets/who_referencia_demo.csv
     - assets/who_edad_demo.csv
+    - assets/fonts/Roboto-Regular.ttf
+    - assets/fonts/Roboto-Bold.ttf
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images

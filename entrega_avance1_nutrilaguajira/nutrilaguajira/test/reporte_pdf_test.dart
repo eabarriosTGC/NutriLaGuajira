@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:nutrilaguajira/data/models/evaluacion_reporte.dart';
 import 'package:nutrilaguajira/services/reporte_csv_service.dart';
@@ -8,6 +10,7 @@ import 'package:nutrilaguajira/services/reporte_pdf_service.dart';
 /// Verifican que produce bytes válidos, que no rompe en los casos límite
 /// (sin rojos, 500 registros) y que rechaza un reporte vacío.
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
   final servicio = ReportePdfService();
 
   EvaluacionReporte evaluacion({
@@ -20,11 +23,13 @@ void main() {
     DateTime? fecha,
     double? zTallaEdad,
     double? zPesoEdad,
+    String nombres = 'Andrés',
+    String apellidos = 'Jusayú',
   }) => EvaluacionReporte(
     idEvaluacion: id,
     idInfante: id,
-    nombres: 'Andrés',
-    apellidos: 'Jusayú',
+    nombres: nombres,
+    apellidos: apellidos,
     fechaNacimiento: DateTime(2024, 1, 1),
     sexo: 'M',
     rancheria: 'Ranchería Bahía Honda',
@@ -119,6 +124,47 @@ void main() {
 
     expect(bytes, isNotEmpty);
     expect(esPdf(bytes), isTrue);
+  });
+
+  test('renderiza — «» ¿¡ con la TTF local (si pdftotext está disponible)', () async {
+    final bytes = await servicio.generar(
+      [
+        evaluacion(
+          id: 1,
+          color: 'rojo',
+          clasificacion: 'ROJO',
+          z: -2.27,
+          nombres: 'Andrés—«»¿¡',
+          apellidos: 'Jusayú',
+          zTallaEdad: -2.1,
+          zPesoEdad: -1.4,
+        ),
+      ],
+      filtros(),
+      ahora: DateTime(2026, 11, 21, 12),
+    );
+
+    expect(bytes, isNotEmpty);
+    expect(esPdf(bytes), isTrue);
+
+    // El motor no debe crashear con la TTF. Si hay poppler, validamos el texto.
+    final dir = await Directory.systemTemp.createTemp('pdf_ttf_');
+    addTearDown(() => dir.delete(recursive: true));
+    final archivo = File('${dir.path}/reporte.pdf');
+    await archivo.writeAsBytes(bytes);
+
+    final which = await Process.run('which', ['pdftotext']);
+    if (which.exitCode != 0) return;
+
+    final salida = await Process.run('pdftotext', [
+      '-layout',
+      archivo.path,
+      '-',
+    ]);
+    final texto = salida.stdout.toString();
+    expect(texto, contains('Andrés'));
+    expect(texto, contains('Jusayú'));
+    expect(texto, contains('«»¿¡'));
   });
 
   test('lanza ArgumentError si no hay evaluaciones que reportar', () async {
