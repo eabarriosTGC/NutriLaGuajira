@@ -41,18 +41,35 @@ Proyecto académico — Escuela de Ingeniería de Sistemas. Metodología Scrum
   detalle de los casos ROJO y copia de coordenadas.
 - **100 % sin internet** (los reportes y la cola de alertas son locales).
 
-## Descargar el APK (Sprint 3)
+## Instalación (APK de distribución v0.4.0-sprint4)
 
-> Release: **`v0.3.0-sprint3`**
+> Release: **`v0.4.0-sprint4`** — APK firmado con clave de **release** (no debug).
 
-<https://github.com/eabarriosTGC/NutriLaGuajira/releases/download/v0.3.0-sprint3/app-debug.apk>
+Descarga el APK según la arquitectura del dispositivo (build `--split-per-abi`):
 
-Requiere **Android 7.0 (API 24) o superior**. Es un **APK universal**
-(arm64-v8a, armeabi-v7a y x86_64) firmado con la clave de *debug*: si Play
-Protect avisa al instalar, es esperado → "Instalar de todas formas".
+| APK | Dispositivos | Tamaño |
+|---|---|---|
+| [`app-arm64-v8a-release.apk`](https://github.com/eabarriosTGC/NutriLaGuajira/releases/download/v0.4.0-sprint4/app-arm64-v8a-release.apk) | **La mayoría** de Android modernos (64 bits) | 21.4 MB |
+| [`app-armeabi-v7a-release.apk`](https://github.com/eabarriosTGC/NutriLaGuajira/releases/download/v0.4.0-sprint4/app-armeabi-v7a-release.apk) | Android de 32 bits (equipos antiguos) | 19.4 MB |
+| [`app-x86_64-release.apk`](https://github.com/eabarriosTGC/NutriLaGuajira/releases/download/v0.4.0-sprint4/app-x86_64-release.apk) | Emuladores x86_64 | 22.9 MB |
 
-> El APK **no** se commitea (pesa cientos de MB): se descarga desde la sección
-> *Releases* del repositorio.
+Requisito: **Android 7.0 (API 24) o superior**. Firmado con clave de **release**
+propia; el keystore se guarda **fuera del repositorio** y no se publica.
+
+Verificar el SHA256 (opcional):
+
+```bash
+sha256sum app-arm64-v8a-release.apk
+# 1f9843c8b7982a72a2723296acbb160d0d0c1045ac1821a5eacb863858eccf30
+```
+
+| APK | SHA256 |
+|---|---|
+| `arm64-v8a` | `1f9843c8b7982a72a2723296acbb160d0d0c1045ac1821a5eacb863858eccf30` |
+| `armeabi-v7a` | `88b4ad943162d170712283bb4a9604a585689da964125b4bd965437f384af26d` |
+| `x86_64` | `87898f489f624c6e44ce45335f34fa9b7e933c219e1af0bc9c831f1da9a6eb62` |
+
+> Las APK **no** se commitean: se descargan desde la sección *Releases*.
 
 ## Inicio rápido
 

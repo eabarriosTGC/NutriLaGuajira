@@ -10,7 +10,8 @@ Documento de traspaso para retomar el trabajo sin reconstruir contexto.
 > **Sprint 4 técnico cerrado (post-entrega).** Talla/Edad y Peso/Edad con tabla
 > **DEMO (LMS)**, `historial_screen` corregido y PDF con TTF local. El plan de
 > trabajo está entregado; la fase de implementación en campo se ejecuta en
-> **2027-1**.
+> **2027-1**. **APK de distribución publicado:** `v0.4.0-sprint4` (release
+> firmado, split por ABI).
 
 ---
 
@@ -21,8 +22,8 @@ Documento de traspaso para retomar el trabajo sin reconstruir contexto.
 | Repo | https://github.com/eabarriosTGC/NutriLaGuajira (público, MIT) |
 | Rama | `main` |
 | HEAD | `9aba19f` (docs: README con Sprints 1–3 y APK) |
-| Tag / release | `v0.3.0-sprint3` (actual) y `v0.1.0-avance1` (histórico), ambos con `app-debug.apk` adjunto |
-| Estado | **Sprint 1 + 2 + 3 completos** + **Sprint 4 técnico COMPLETO** (T/E-P/E DEMO + historial/TTF): `flutter analyze` limpio, **101/101 tests**, formato limpio |
+| Tag / release | `v0.4.0-sprint4` (APK de distribución, release firmado) · `v0.3.0-sprint3` (debug) · `v0.1.0-avance1` (histórico) |
+| Estado | **Sprint 1 + 2 + 3 completos** + **Sprint 4 técnico COMPLETO** (T/E-P/E DEMO + historial/TTF) + **APK de distribución `v0.4.0-sprint4`**: `flutter analyze` limpio, **101/101 tests**, formato limpio |
 | Evidencias | `entrega_avance1_nutrilaguajira/EVIDENCIAS_SPRINT{2,3}.md` + `screenshots/` |
 
 Alcance funcional: login local, registro de infantes/tutores, evaluación
@@ -163,7 +164,7 @@ limpio.
 |---|---|---|
 | 1 | Tablas OMS completas (P/T y por edad) | reemplazar los CSV DEMO; es el **Gate 1** del roadmap |
 | 2 | Editar / borrar evaluaciones | hoy solo inserción y lectura |
-| 3 | APK de distribución | keystore + `--release` + `--split-per-abi` |
+| 3 | ~~APK de distribución~~ ✅ **publicado `v0.4.0-sprint4`** | release firmado + `--split-per-abi` (3 APK) |
 
 ### 6.3 Interoperabilidad (fase institucional) — BLOQUEADA
 
