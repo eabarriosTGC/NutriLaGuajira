@@ -153,8 +153,15 @@ void main() {
     final archivo = File('${dir.path}/reporte.pdf');
     await archivo.writeAsBytes(bytes);
 
-    final which = await Process.run('which', ['pdftotext']);
-    if (which.exitCode != 0) return;
+    final which = await () async {
+      try {
+        return await Process.run('which', ['pdftotext']);
+      } on ProcessException {
+        // `which` no existe en Windows: se omite la validación opcional.
+        return null;
+      }
+    }();
+    if (which == null || which.exitCode != 0) return;
 
     final salida = await Process.run('pdftotext', [
       '-layout',

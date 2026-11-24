@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -148,6 +150,12 @@ class _EvaluacionFormScreenState extends State<EvaluacionFormScreen> {
         );
       } catch (_) {
         // La alerta es best-effort; el tamizaje ya está persistido.
+      }
+
+      // Best-effort: el registro ya quedó `sincronizado = 0` en SQLite.
+      // Se intenta subir a Firestore sin bloquear ni interrumpir el flujo.
+      if (AppServices.listo) {
+        unawaited(AppServices.sync.solicitarSincronizacion());
       }
 
       if (!mounted) return;

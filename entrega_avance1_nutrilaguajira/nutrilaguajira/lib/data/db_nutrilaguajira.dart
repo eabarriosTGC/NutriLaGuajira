@@ -8,6 +8,7 @@ import '../services/edad.dart';
 import '../services/nutricion_service.dart';
 import '../services/referencias_edad_loader.dart';
 import '../services/referencias_loader.dart';
+import '../services/uuid_local.dart';
 
 /// Acceso a la base de datos local SQLite (sqflite).
 ///
@@ -25,7 +26,7 @@ class DbNutriLaGuajira {
   static final DbNutriLaGuajira instance = DbNutriLaGuajira._();
 
   static const String nombreArchivo = 'nutrilaguajira.db';
-  static const int versionEsquema = 4;
+  static const int versionEsquema = 5;
 
   static const String tablaUsuarios = 'usuarios';
   static const String tablaNinos = 'ninos';
@@ -35,6 +36,7 @@ class DbNutriLaGuajira {
   static const String tablaAlertas = 'alertas_pendientes';
 
   Database? _db;
+  final List<Database> _conexionesAnteriores = [];
   String? _rutaOverride;
   List<ReferenciaWho>? _referenciasOverride;
   List<ReferenciaEdad>? _referenciasEdadOverride;
@@ -48,6 +50,11 @@ class DbNutriLaGuajira {
     List<ReferenciaEdad>? referenciasEdad,
     bool omitirSemilla = false,
   }) {
+    // No se puede cerrar de forma asíncrona aquí: se conserva la conexión
+    // anterior para cerrarla en [cerrar] y evitar archivos bloqueados en
+    // Windows cuando una prueba reapunta la base a otra ruta.
+    final actual = _db;
+    if (actual != null) _conexionesAnteriores.add(actual);
     _rutaOverride = ruta;
     _referenciasOverride = referencias;
     _referenciasEdadOverride = referenciasEdad;
@@ -87,6 +94,12 @@ class DbNutriLaGuajira {
   /// v3 -> v4: columnas `z_talla_edad`/`z_peso_edad` en `evaluaciones` y tabla
   /// `who_referencia_edad_demo` (LMS por edad). Las filas viejas quedan en
   /// `NULL` (se muestran como "N/D"); no se recalculan.
+  ///
+  /// v4 -> v5: soporte de sincronización con Firestore. Se agrega `uuid` (id
+  /// estable para el documento remoto), `sincronizado`/`updated_at` en `ninos`
+  /// y `updated_at` en `evaluaciones`. Las filas existentes se marcan como
+  /// pendientes (`sincronizado = 0`) y reciben un `uuid` determinista basado en
+  /// su id local, de modo que la primera sincronización no duplique datos.
   Future<void> _onUpgrade(Database db, int oldVersion, int newVersion) async {
     if (oldVersion < 2) {
       await db.execute('ALTER TABLE $tablaEvaluaciones ADD COLUMN lat REAL');
@@ -113,6 +126,51 @@ class DbNutriLaGuajira {
           _referenciasEdadOverride ??
           await ReferenciasEdadLoader.cargarDesdeAssets();
       await _cargarReferenciasEdad(db, referenciasEdad);
+    }
+    if (oldVersion < 5) {
+      final tablas = (await db.rawQuery(
+        "SELECT name FROM sqlite_master WHERE type = 'table'",
+      )).map((fila) => fila['name'] as String).toSet();
+      final tieneNinos = tablas.contains(tablaNinos);
+      final tieneEvaluaciones = tablas.contains(tablaEvaluaciones);
+
+      if (tieneNinos) {
+        await db.execute('ALTER TABLE $tablaNinos ADD COLUMN uuid TEXT');
+        await db.execute(
+          'ALTER TABLE $tablaNinos ADD COLUMN sincronizado INTEGER NOT NULL '
+          'DEFAULT 0',
+        );
+        await db.execute('ALTER TABLE $tablaNinos ADD COLUMN updated_at TEXT');
+
+        // Relleno determinista para no reenviar dos veces los mismos registros.
+        await db.execute(
+          "UPDATE $tablaNinos SET uuid = 'nino-' || id, "
+          'updated_at = created_at WHERE uuid IS NULL',
+        );
+        await db.execute(
+          'CREATE UNIQUE INDEX idx_nino_uuid ON $tablaNinos (uuid)',
+        );
+        await db.execute(
+          'CREATE INDEX idx_nino_sync ON $tablaNinos (sincronizado)',
+        );
+      }
+
+      if (tieneEvaluaciones) {
+        await db.execute('ALTER TABLE $tablaEvaluaciones ADD COLUMN uuid TEXT');
+        await db.execute(
+          'ALTER TABLE $tablaEvaluaciones ADD COLUMN updated_at TEXT',
+        );
+        await db.execute(
+          "UPDATE $tablaEvaluaciones SET uuid = 'eval-' || id, "
+          'updated_at = fecha WHERE uuid IS NULL',
+        );
+        await db.execute(
+          'CREATE INDEX idx_eval_sync ON $tablaEvaluaciones (sincronizado)',
+        );
+        await db.execute(
+          'CREATE UNIQUE INDEX idx_eval_uuid ON $tablaEvaluaciones (uuid)',
+        );
+      }
     }
   }
 
@@ -154,6 +212,14 @@ class DbNutriLaGuajira {
   Future<void> cerrar() async {
     await _db?.close();
     _db = null;
+    for (final conexion in _conexionesAnteriores) {
+      try {
+        await conexion.close();
+      } catch (_) {
+        // Ya estaba cerrada.
+      }
+    }
+    _conexionesAnteriores.clear();
   }
 
   Future<void> _onCreate(Database db, int version) async {
@@ -176,7 +242,10 @@ class DbNutriLaGuajira {
         sexo TEXT NOT NULL,
         tutor TEXT NOT NULL,
         comunidad TEXT NOT NULL,
-        created_at TEXT NOT NULL
+        created_at TEXT NOT NULL,
+        uuid TEXT,
+        sincronizado INTEGER NOT NULL DEFAULT 0,
+        updated_at TEXT
       )
       ''',
       '''
@@ -198,6 +267,8 @@ class DbNutriLaGuajira {
         lng REAL,
         z_talla_edad REAL,
         z_peso_edad REAL,
+        uuid TEXT,
+        updated_at TEXT,
         FOREIGN KEY (nino_id) REFERENCES $tablaNinos (id) ON DELETE CASCADE
       )
       ''',
@@ -213,6 +284,10 @@ class DbNutriLaGuajira {
       ''',
       'CREATE INDEX idx_eval_nino ON $tablaEvaluaciones (nino_id)',
       'CREATE INDEX idx_eval_fecha ON $tablaEvaluaciones (fecha DESC)',
+      'CREATE INDEX idx_nino_sync ON $tablaNinos (sincronizado)',
+      'CREATE INDEX idx_eval_sync ON $tablaEvaluaciones (sincronizado)',
+      'CREATE UNIQUE INDEX idx_nino_uuid ON $tablaNinos (uuid)',
+      'CREATE UNIQUE INDEX idx_eval_uuid ON $tablaEvaluaciones (uuid)',
       _crearTablaAlertas,
       'CREATE INDEX idx_alerta_estado ON $tablaAlertas (estado)',
       'CREATE INDEX idx_alerta_fecha ON $tablaAlertas (fecha_creacion DESC)',
@@ -310,7 +385,16 @@ class DbNutriLaGuajira {
     final semillas = <Nino>[nino1, nino2, nino3];
     final ids = <int>[];
     for (final nino in semillas) {
-      ids.add(await db.insert(tablaNinos, nino.toMap()));
+      // La semilla es solo demostrativa: se marca como sincronizada para no
+      // subir datos ficticios a Firestore al iniciar sesión por primera vez.
+      ids.add(
+        await db.insert(tablaNinos, {
+          ...nino.toMap(),
+          'uuid': generarUuidLocal('nino'),
+          'sincronizado': 1,
+          'updated_at': hoy.toIso8601String(),
+        }),
+      );
     }
 
     // Caso VERDE: nino de ~11 meses, 75 cm y 9.5 kg (Z ≈ +0.32).
@@ -397,7 +481,9 @@ class DbNutriLaGuajira {
       'clasificacion': resultado.clasificacion.etiqueta,
       'color': resultado.clasificacion.clave,
       'observacion': resultado.observacion,
-      'sincronizado': 0,
+      'sincronizado': 1,
+      'uuid': generarUuidLocal('eval'),
+      'updated_at': fecha.toIso8601String(),
     });
   }
 }

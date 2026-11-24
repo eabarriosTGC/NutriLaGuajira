@@ -1,4 +1,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Sincronización con Cloud Firestore / Firebase Auth. -->
+    <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
     <!-- Ubicación para capturar las coordenadas de la ranchería al tamizar.
          Se pide permiso en tiempo de ejecución y es opcional: si se deniega,
          el tamizaje se guarda sin coordenadas. -->

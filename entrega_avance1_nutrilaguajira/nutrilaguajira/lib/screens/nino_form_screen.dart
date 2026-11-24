@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 
 import '../app_services.dart';
@@ -118,6 +120,11 @@ class _NinoFormScreenState extends State<NinoFormScreen> {
         id = widget.nino!.id!;
       } else {
         id = await AppServices.repo.insertarNino(nino);
+      }
+
+      // El infante quedó pendiente de sincronizar; se intenta en segundo plano.
+      if (AppServices.listo) {
+        unawaited(AppServices.sync.solicitarSincronizacion());
       }
 
       if (!mounted) return;

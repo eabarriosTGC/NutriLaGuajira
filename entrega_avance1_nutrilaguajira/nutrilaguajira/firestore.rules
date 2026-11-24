@@ -1,0 +1,46 @@
+rules_version = '2';
+
+// Reglas de seguridad de Cloud Firestore para NutriLaGuajira.
+//
+// Modelo:
+//   promotores/{uid}/ninos/{uuid}          -> privado de cada promotor
+//   promotores/{uid}/evaluaciones/{uuid}   -> privado de cada promotor
+//   alertas_criticas/{alertaId}            -> lectura para el nivel central
+//
+// Despliegue:
+//   firebase deploy --only firestore:rules
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function autenticado() {
+      return request.auth != null;
+    }
+
+    function esPropietario(uid) {
+      return autenticado() && request.auth.uid == uid;
+    }
+
+    // Caso 4: cada promotor solo puede leer y escribir dentro de su carpeta.
+    // La ruta incluye el UID, así que extraer el APK no da acceso a otros.
+    match /promotores/{uid}/{document=**} {
+      allow read, write: if esPropietario(uid);
+    }
+
+    // Caso 2: alertas tempranas para el panel central.
+    // Cualquier usuario autenticado puede leerlas (brigada/municipio) y
+    // crear las suyas; solo el autor puede modificarlas o borrarlas.
+    match /alertas_criticas/{alertaId} {
+      allow read: if autenticado();
+      allow create: if autenticado()
+                    && request.resource.data.promotorUid == request.auth.uid;
+      allow update, delete: if autenticado()
+                            && resource.data.promotorUid == request.auth.uid;
+    }
+
+    // Todo lo demás queda cerrado por defecto.
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

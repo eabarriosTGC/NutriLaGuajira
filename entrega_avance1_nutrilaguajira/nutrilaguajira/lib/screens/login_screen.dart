@@ -47,19 +47,26 @@ class _LoginScreenState extends State<LoginScreen> {
     });
 
     try {
-      final usuario = await AppServices.repo.autenticar(
+      // 1) Firebase Auth si el identificador es un correo.
+      // 2) Sesión guardada (hash local) si no hay red.
+      // 3) Tabla `usuarios` de SQLite para la cuenta demo `promotor`.
+      final resultado = await AppServices.auth.iniciarSesion(
         _usuario.text,
         _clave.text,
       );
       if (!mounted) return;
-      if (usuario == null) {
+      if (!resultado.exito) {
         setState(() {
           _cargando = false;
-          _error = 'Usuario o contraseña incorrectos';
+          _error = resultado.mensaje ?? 'Usuario o contraseña incorrectos';
         });
         return;
       }
-      Sesion.usuario = usuario;
+
+      Sesion.aplicar(resultado);
+      await AppServices.sync.iniciar();
+      if (!mounted) return;
+
       Navigator.of(context).pushReplacement(
         MaterialPageRoute<void>(builder: (_) => const HomeScreen()),
       );
@@ -111,12 +118,12 @@ class _LoginScreenState extends State<LoginScreen> {
                       textInputAction: TextInputAction.next,
                       autocorrect: false,
                       decoration: const InputDecoration(
-                        labelText: 'Usuario',
+                        labelText: 'Usuario o correo',
                         prefixIcon: Icon(Icons.person_outline),
                       ),
                       validator: (valor) =>
                           (valor == null || valor.trim().isEmpty)
-                          ? 'Ingrese el usuario'
+                          ? 'Ingrese el usuario o correo'
                           : null,
                     ),
                     const SizedBox(height: 14),
@@ -206,6 +213,16 @@ class _LoginScreenState extends State<LoginScreen> {
                             const SizedBox(height: 8),
                             const Text('Usuario: promotor'),
                             const Text('Contraseña: demo123'),
+                            const SizedBox(height: 8),
+                            Text(
+                              'La cuenta demo es solo local. Para sincronizar '
+                              'con Firebase usa tu correo registrado en la '
+                              'consola (Authentication > Users).',
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: esquema.onSurfaceVariant,
+                              ),
+                            ),
                             const SizedBox(height: 12),
                             OutlinedButton.icon(
                               onPressed: _usarCredencialesDemo,
@@ -228,7 +245,8 @@ class _LoginScreenState extends State<LoginScreen> {
                         const SizedBox(width: 6),
                         Flexible(
                           child: Text(
-                            'Funciona sin internet · datos en el dispositivo',
+                            'Funciona sin internet · SQLite local + '
+                            'sincronización opcional con Firebase',
                             style: TextStyle(
                               fontSize: 13,
                               color: esquema.onSurfaceVariant,

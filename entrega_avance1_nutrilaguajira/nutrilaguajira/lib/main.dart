@@ -8,6 +8,9 @@ import 'theme/tema.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
+  // Firebase se inicializa dentro de AppServices.init() (pantalla de arranque)
+  // y de forma tolerante a fallos: si falta google-services.json o no hay red,
+  // la app continúa 100 % offline con SQLite.
   runApp(const NutriLaGuajiraApp());
 }
 

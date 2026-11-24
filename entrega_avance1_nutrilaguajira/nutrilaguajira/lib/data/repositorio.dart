@@ -8,6 +8,7 @@ import 'models/nino.dart';
 import 'models/referencia_edad.dart';
 import 'models/referencia_who.dart';
 import 'models/resumen_zona.dart';
+import '../services/uuid_local.dart';
 
 /// Consultas de la app sobre SQLite. Toda la persistencia pasa por aqui.
 class Repositorio {
@@ -54,14 +55,26 @@ class Repositorio {
 
   Future<int> insertarNino(Nino nino) async {
     final base = await _base;
-    return base.insert(DbNutriLaGuajira.tablaNinos, nino.toMap());
+    final datos = <String, Object?>{
+      ...nino.toMap(),
+      'uuid': nino.uuid ?? generarUuidLocal('nino'),
+      // Todo registro nuevo nace pendiente de subir a Firestore.
+      'sincronizado': 0,
+      'updated_at': DateTime.now().toIso8601String(),
+    }..remove('id');
+    return base.insert(DbNutriLaGuajira.tablaNinos, datos);
   }
 
   Future<int> actualizarNino(Nino nino) async {
     final base = await _base;
+    final datos = <String, Object?>{
+      ...nino.toMap(),
+      'sincronizado': 0,
+      'updated_at': DateTime.now().toIso8601String(),
+    }..remove('id');
     return base.update(
       DbNutriLaGuajira.tablaNinos,
-      nino.toMap(),
+      datos,
       where: 'id = ?',
       whereArgs: [nino.id],
     );
@@ -118,7 +131,96 @@ class Repositorio {
 
   Future<int> insertarEvaluacion(Evaluacion evaluacion) async {
     final base = await _base;
-    return base.insert(DbNutriLaGuajira.tablaEvaluaciones, evaluacion.toMap());
+    final datos = <String, Object?>{
+      ...evaluacion.toMap(),
+      'uuid': evaluacion.uuid ?? generarUuidLocal('eval'),
+      // La evaluación se guarda primero en SQLite y queda pendiente de subir;
+      // el motor de Z-score y el semáforo ya se calcularon localmente.
+      'sincronizado': 0,
+      'updated_at': DateTime.now().toIso8601String(),
+    }..remove('id');
+    return base.insert(DbNutriLaGuajira.tablaEvaluaciones, datos);
+  }
+
+  // ---------------------------------------------------------- sincronización
+  /// Infantes con cambios locales aún no confirmados en Firestore.
+  Future<List<Nino>> ninosPendientes() async {
+    final base = await _base;
+    final filas = await base.query(
+      DbNutriLaGuajira.tablaNinos,
+      where: 'sincronizado = 0',
+      orderBy: 'id ASC',
+    );
+    return filas.map(Nino.fromMap).toList();
+  }
+
+  /// Evaluaciones pendientes, con el nombre/comunidad y el `uuid` del infante
+  /// (necesarios para escribir el documento remoto y la alerta crítica).
+  Future<List<Evaluacion>> evaluacionesPendientes() async {
+    final base = await _base;
+    final filas = await base.rawQuery('''
+      SELECT e.*,
+             n.nombres || ' ' || n.apellidos AS nino_nombre,
+             n.comunidad AS comunidad,
+             n.uuid AS nino_uuid
+      FROM ${DbNutriLaGuajira.tablaEvaluaciones} e
+      INNER JOIN ${DbNutriLaGuajira.tablaNinos} n ON n.id = e.nino_id
+      WHERE e.sincronizado = 0
+      ORDER BY e.fecha ASC, e.id ASC
+    ''');
+    return filas.map(Evaluacion.fromMap).toList();
+  }
+
+  /// Total de registros pendientes (infantes + evaluaciones) para el indicador
+  /// de la pantalla principal.
+  Future<int> contarPendientes() async {
+    final base = await _base;
+    final filas = await base.rawQuery('''
+      SELECT
+        (SELECT COUNT(*) FROM ${DbNutriLaGuajira.tablaNinos}
+          WHERE sincronizado = 0) +
+        (SELECT COUNT(*) FROM ${DbNutriLaGuajira.tablaEvaluaciones}
+          WHERE sincronizado = 0) AS total
+    ''');
+    return (filas.first['total'] as num?)?.toInt() ?? 0;
+  }
+
+  /// Marca como sincronizados solo los registros que Firestore confirmó.
+  Future<void> marcarSincronizados({
+    Iterable<int> ninos = const <int>[],
+    Iterable<int> evaluaciones = const <int>[],
+    DateTime? momento,
+  }) async {
+    final base = await _base;
+    final marca = (momento ?? DateTime.now()).toIso8601String();
+    final idsNinos = ninos.whereType<int>().toList();
+    final idsEvaluaciones = evaluaciones.whereType<int>().toList();
+
+    // SQLite limita el número de variables de una sentencia; se actualiza por
+    // bloques para soportar sincronizaciones grandes.
+    for (final bloque in _bloques(idsNinos)) {
+      await base.update(
+        DbNutriLaGuajira.tablaNinos,
+        <String, Object?>{'sincronizado': 1, 'updated_at': marca},
+        where: 'id IN (${List.filled(bloque.length, '?').join(',')})',
+        whereArgs: bloque,
+      );
+    }
+    for (final bloque in _bloques(idsEvaluaciones)) {
+      await base.update(
+        DbNutriLaGuajira.tablaEvaluaciones,
+        <String, Object?>{'sincronizado': 1, 'updated_at': marca},
+        where: 'id IN (${List.filled(bloque.length, '?').join(',')})',
+        whereArgs: bloque,
+      );
+    }
+  }
+
+  static Iterable<List<int>> _bloques(List<int> ids, {int tamano = 400}) sync* {
+    for (var inicio = 0; inicio < ids.length; inicio += tamano) {
+      final fin = inicio + tamano < ids.length ? inicio + tamano : ids.length;
+      yield ids.sublist(inicio, fin);
+    }
   }
 
   // ---------------------------------------------------------------- reportes

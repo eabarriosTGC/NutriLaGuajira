@@ -79,6 +79,11 @@ class AcercaDeScreen extends StatelessWidget {
             vineta('Cálculo automático de Z-score Peso/Talla con tabla DEMO.'),
             vineta('Semáforo nutricional: verde, amarillo y rojo.'),
             vineta('Persistencia local en SQLite (funciona sin internet).'),
+            vineta(
+              'Sincronización opcional con Cloud Firestore al recuperar señal '
+              '(requiere sesión de Firebase).',
+            ),
+            vineta('Alerta crítica centralizada cuando el tamizaje es ROJO.'),
             vineta('Historial de evaluaciones con el color del semáforo.'),
             vineta(
               'Ubicación GPS opcional de la ranchería al guardar el tamizaje.',
@@ -86,7 +91,7 @@ class AcercaDeScreen extends StatelessWidget {
             titulo('¿Qué NO incluye todavía?'),
             vineta('Reportes georreferenciados (PDF/CSV).'),
             vineta('Envío de alertas por SMS.'),
-            vineta('Sincronización con servidor o nube.'),
+            vineta('Panel web central y notificaciones push.'),
             vineta('Notificaciones push e iOS.'),
             parrafo(
               'Estos módulos aparecen como "próximo sprint" y no están '
@@ -141,12 +146,16 @@ class AcercaDeScreen extends StatelessWidget {
             ),
             titulo('Privacidad'),
             parrafo(
-              'Todos los datos quedan en la base SQLite del dispositivo. La app '
-              'no abre conexiones de red ni envía información a terceros. La '
-              'ubicación se captura solo si el usuario la solicita y queda '
-              'guardada localmente. Cualquier sincronización futura requerirá '
-              'consentimiento y medidas de protección de datos personales de '
-              'menores.',
+              'Los datos se guardan primero en la base SQLite del dispositivo. '
+              'Si el promotor inicia sesión con su correo de Firebase, los '
+              'registros se copian a su carpeta privada en Cloud Firestore '
+              '(promotores/{uid}) únicamente cuando hay conexión. Las reglas de '
+              'seguridad impiden que un promotor lea o escriba los datos de '
+              'otro. Los casos ROJO generan una alerta en la colección global '
+              'alertas_criticas para la brigada. La ubicación se captura solo '
+              'si el usuario la solicita. Este prototipo académico no '
+              'reemplaza las medidas de protección de datos personales de '
+              'menores exigidas por la ley.',
             ),
             titulo('Tecnologías'),
             vineta('Flutter 3.x / Dart con Material 3.'),

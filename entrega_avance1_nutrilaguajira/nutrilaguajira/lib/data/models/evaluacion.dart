@@ -20,9 +20,12 @@ class Evaluacion {
     required this.observacion,
     this.sincronizado = false,
     this.ninoNombre,
+    this.ninoUuid,
     this.comunidad,
     this.lat,
     this.lng,
+    this.uuid,
+    this.updatedAt,
   });
 
   final int? id;
@@ -49,7 +52,15 @@ class Evaluacion {
 
   /// Solo se llenan cuando la evaluacion viene de un JOIN con `ninos`.
   final String? ninoNombre;
+  final String? ninoUuid;
   final String? comunidad;
+
+  /// Identificador estable para Firestore
+  /// (`promotores/{uid}/evaluaciones/{uuid}`).
+  final String? uuid;
+
+  /// Última modificación local (estrategia "última escritura gana").
+  final DateTime? updatedAt;
 
   /// Coordenadas de la ranchería en el momento del tamizaje. Son opcionales:
   /// en zonas sin señal GPS quedan en `null` y el tamizaje es igualmente válido.
@@ -82,6 +93,8 @@ class Evaluacion {
     'sincronizado': sincronizado ? 1 : 0,
     'lat': lat,
     'lng': lng,
+    if (uuid != null) 'uuid': uuid,
+    if (updatedAt != null) 'updated_at': updatedAt!.toIso8601String(),
   };
 
   /// Copia con el id asignado por SQLite (la insercion devuelve el rowid).
@@ -102,9 +115,12 @@ class Evaluacion {
     observacion: observacion,
     sincronizado: sincronizado,
     ninoNombre: ninoNombre,
+    ninoUuid: ninoUuid,
     comunidad: comunidad,
     lat: lat,
     lng: lng,
+    uuid: uuid,
+    updatedAt: updatedAt,
   );
 
   factory Evaluacion.fromMap(Map<String, Object?> map) => Evaluacion(
@@ -124,8 +140,13 @@ class Evaluacion {
     observacion: (map['observacion'] as String?) ?? '',
     sincronizado: ((map['sincronizado'] as num?)?.toInt() ?? 0) == 1,
     ninoNombre: map['nino_nombre'] as String?,
+    ninoUuid: map['nino_uuid'] as String?,
     comunidad: map['comunidad'] as String?,
     lat: (map['lat'] as num?)?.toDouble(),
     lng: (map['lng'] as num?)?.toDouble(),
+    uuid: map['uuid'] as String?,
+    updatedAt: map['updated_at'] == null
+        ? null
+        : DateTime.tryParse(map['updated_at'] as String),
   );
 }

@@ -134,8 +134,10 @@ class DetalleEvaluacionScreen extends StatelessWidget {
                       etiqueta: 'Sincronizado',
                       valor: evaluacion.sincronizado
                           ? 'Sí'
-                          : 'No (pendiente: próximo sprint)',
-                      icono: Icons.cloud_off,
+                          : 'No (pendiente de sincronizar)',
+                      icono: evaluacion.sincronizado
+                          ? Icons.cloud_done
+                          : Icons.cloud_off,
                     ),
                   ],
                 ),

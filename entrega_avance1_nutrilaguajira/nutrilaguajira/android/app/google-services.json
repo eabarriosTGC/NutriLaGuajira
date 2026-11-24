@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "158549952047",
+    "project_id": "nutrilaguajira",
+    "storage_bucket": "nutrilaguajira.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:158549952047:android:4918d994a533c638c768da",
+        "android_client_info": {
+          "package_name": "co.edu.uniguajira.nutrilaguajira"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "158549952047-d8246ma9n9h5vpa2rv9fj4rr1f78mqol.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCri9UHA3RUxjTarKjrDPfpRCutWEYM6Xg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "158549952047-d8246ma9n9h5vpa2rv9fj4rr1f78mqol.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
