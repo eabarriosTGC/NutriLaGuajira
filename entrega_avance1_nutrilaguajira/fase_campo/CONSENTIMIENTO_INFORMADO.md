@@ -1,6 +1,6 @@
 # Consentimiento informado — piloto NutriLaGuajira 2027-1
 
-**Versión:** 0.1 (borrador para revisión jurídica y del comité de ética)
+**Versión:** 0.2 (borrador; incorpora la sincronización con Cloud Firestore)
 **Fecha:** 2026-11-21
 **Responsable del tratamiento:** Universidad de La Guajira (Uniguajira) —
 proyecto NutriLaGuajira. *El nombre del investigador principal y los datos de
@@ -76,10 +76,15 @@ datos de otros miembros de la familia.
 ## 5. ¿Qué riesgos tiene?
 
 - **Molestia mínima:** medir puede incomodar al niño unos segundos.
-- **Privacidad:** los datos quedan **en el teléfono del promotor**, en una base
-  de datos **sin cifrar**. El teléfono se protege con PIN y queda bajo custodia
-  del promotor. Existe el riesgo de pérdida o robo del equipo; si ocurre, se
-  informa y se toman las medidas del caso.
+- **Privacidad local:** los datos quedan **en el teléfono del promotor**, en una
+  base de datos **sin cifrar**. El teléfono se protege con PIN y queda bajo
+  custodia del promotor. Existe el riesgo de pérdida o robo del equipo; si
+  ocurre, se informa y se toman las medidas del caso.
+- **Privacidad en la nube:** si se usa una cuenta de Firebase, los datos se
+  envían a **Google Cloud (Firestore, `us-east1`)**. Un acceso indebido a esa
+  cuenta o un error de reglas podría exponer los datos de varios niños. Las
+  reglas limitan cada promotor a su carpeta, pero las **alertas ROJAS** son
+  legibles por cualquier usuario autenticado del proyecto.
 - **Alerta por mensaje de texto:** el mensaje de alerta **incluye el nombre del
   niño y la ranchería** y viaja **sin cifrar**. Se envía **solo al número
   institucional** definido por el proyecto, nunca a contactos personales.
@@ -114,8 +119,11 @@ datos de otros miembros de la familia.
   solo en poder de la coordinación, en un archivo separado.
 - **Conservación:** los datos permanecen hasta el cierre del informe; después se
   borran del teléfono y se conserva solo el archivo anonimizado.
-- **Seguridad:** PIN en el dispositivo, sin cuentas personales, sin nube, sin
-  aplicaciones de mensajería con historial del proyecto.
+- **Seguridad:** PIN en el dispositivo, sin cuentas personales en el teléfono y
+  sin aplicaciones de mensajería con historial del proyecto.
+- **Nube:** si se usa una cuenta institucional de Firebase, los datos se
+  sincronizan a **Google Cloud (Cloud Firestore)**, ver §8. Con la cuenta demo
+  local no se envía nada.
 - **Datos de menores:** son **datos sensibles**; su tratamiento requiere su
   autorización expresa como representante legal.
 
@@ -123,13 +131,29 @@ datos de otros miembros de la familia.
 
 ## 8. ¿Se comparten datos con terceros?
 
-**En esta fase, no.** La versión que se usará en el piloto guarda todo en el
-teléfono y **no envía datos a ningún servidor**.
+**Sí, con un proveedor de nube, y solo si se usa una cuenta institucional.**
 
-Si en una fase posterior se habilita la sincronización (Gates 2 y 3 del
+| Aspecto | Detalle |
+|---|---|
+| Proveedor | **Google LLC — Cloud Firestore** (encargado del tratamiento) |
+| Ubicación | región **`us-east1`** (Estados Unidos) |
+| Qué se envía | nombres y apellidos, documento (si se registró), fecha de nacimiento, sexo, tutor, ranchería, peso, talla, MUAC, edema, Z-scores, clasificación, coordenadas (si se capturaron) |
+| Qué **no** se envía | PDF, imágenes, audios, datos de otros familiares |
+| Cuándo | al guardar y al recuperar conexión, si la sesión es de Firebase Auth |
+| Quién puede leerlo | el promotor dueño de la cuenta y, para las **alertas ROJAS**, cualquier usuario autenticado del proyecto (panel central) |
+
+- La **cuenta demo** (`promotor` / `demo123`) no sincroniza: los datos quedan
+  solo en el teléfono.
+- Google cifra los datos en tránsito y en reposo, pero **los campos se guardan
+  legibles** para el personal autorizado. No es un almacenamiento cifrado de
+  extremo a extremo.
+- Usted puede **negar** la sincronización: en ese caso el piloto se hace con la
+  cuenta demo y los datos no salen del dispositivo.
+
+Si en una fase posterior se habilita la **interoperabilidad institucional**
+(FHIR/API con la Secretaría, Gates 2 y 3 del
 [roadmap](../ROADMAP_INTEROPERABILIDAD.md)), se pedirá **una nueva autorización**
-que indicará **a quién** se transfiere y **para qué**. Los destinatarios
-previstos serían:
+que indicará **a quién** se transfiere y **para qué**:
 
 | Posible destinatario | Finalidad prevista |
 |---|---|
@@ -189,14 +213,19 @@ niña ______________________________________, declaro que:
       procedimiento, los riesgos y los beneficios.
 - [ ] Entiendo que la app usa **tablas DEMO**, que **no diagnostica** y que un
       resultado rojo se remite a salud.
-- [ ] Entiendo que los datos quedan **en el teléfono** y que el mensaje de
-      alerta **incluye el nombre del niño** y se envía al número institucional.
+- [ ] Entiendo que los datos quedan **en el teléfono** y, si se usa una cuenta
+      institucional, **también se copian a Google Cloud (Firestore)**.
+- [ ] Entiendo que el mensaje de alerta **incluye el nombre del niño** y se
+      envía al número institucional.
+- [ ] **Autorizo** la sincronización con Google Cloud (Firestore) descrita en
+      §8. *(Si no autoriza, se usa la cuenta demo local y no se envía nada.)*
 - [ ] Entiendo que puedo **negar o retirar** la autorización en cualquier
       momento, sin afectar la atención.
 - [ ] **Autorizo** el tratamiento de los datos descrito (Ley 1581 de 2012).
 - [ ] **Autorizo** la observación por parte de estudiantes, sin imágenes.
-- [ ] **No autorizo** (marque si aplica). En ese caso, no se realiza el
-      tamizaje con la app.
+- [ ] **No autorizo** el tamizaje con la app (marque si aplica).
+- [ ] **No autorizo** la sincronización con la nube (marque si aplica). En ese
+      caso se registra solo en el teléfono.
 
 | | Nombre | Documento | Firma / huella | Fecha |
 |---|---|---|---|---|
@@ -216,9 +245,10 @@ niña ______________________________________, declaro que:
 > "Estamos probando una aplicación que mide el peso y la talla de los niños sin
 > internet. Si usted acepta, medimos al niño, la app muestra un color y le
 > decimos qué hacer. Si el color es rojo, avisamos hoy al puesto de salud. Los
-> datos quedan en este teléfono, no van a internet, y usted puede pedir que los
-> borren cuando quiera. La app no es un diagnóstico y usa tablas de práctica.
-> ¿Tiene preguntas? ¿Acepta?"
+> datos quedan en este teléfono y, si usamos la cuenta de la universidad,
+> también se guardan en un servidor de Google; usted puede decir que no. Puede
+> pedir que los borren cuando quiera. La app no es un diagnóstico y usa tablas
+> de práctica. ¿Tiene preguntas? ¿Acepta?"
 
 *(Traducción al wayuunaiki: ver
 [`GUIA_USUARIO_WAYUUNAIKI.md`](GUIA_USUARIO_WAYUUNAIKI.md) — pendiente de
@@ -232,5 +262,6 @@ validación.)*
 | Versión | Fecha | Cambio | Aprobó |
 |---|---|---|---|
 | 0.1 | 2026-11-21 | Borrador inicial | — |
+| 0.2 | 2026-11-24 | Declara la sincronización con Cloud Firestore (§5, §7, §8, §12, §13) | — |
 | | | Revisión jurídica | |
 | | | Aprobación comité de ética | |

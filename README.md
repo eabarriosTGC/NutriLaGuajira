@@ -14,8 +14,9 @@ Proyecto académico — Escuela de Ingeniería de Sistemas. Metodología Scrum
 | **2** | Z-score Peso/Talla con tabla DEMO, semáforo (verde/amarillo/rojo), captura **opcional de GPS** (alta precisión + fallback offline) y detalle georreferenciado. |
 | **3** | **Reportes CSV/PDF** con filtros, **alertas SMS** con cola local y reintento, y **zonas en riesgo** consolidadas por ranchería. |
 | **4 (técnico, completo)** | Z **Talla/Edad** y **Peso/Edad** con tabla **DEMO (LMS)**, migración de esquema v4, reportes/UI con los índices, **PDF con TTF local** (`—`, `«»`, `¿¡`) y `historial_screen` corregido. |
+| **Sincronización (2026-11)** | **Firebase Auth + Cloud Firestore** (esquema local v5): login con correo, subida por lotes de infantes y evaluaciones, alertas ROJAS en `alertas_criticas`, tarjeta de estado y reintento automático. SQLite sigue siendo la fuente de verdad. |
 
-**Calidad actual:** `flutter test` **101/101** · `flutter analyze` **0 issues** ·
+**Calidad actual:** `flutter test` **110/110** · `flutter analyze` **0 issues** ·
 `dart format` sin cambios pendientes.
 
 ## Funcionalidades
@@ -76,7 +77,7 @@ sha256sum app-arm64-v8a-release.apk
 ```bash
 cd entrega_avance1_nutrilaguajira/nutrilaguajira
 flutter pub get
-flutter test      # 101/101
+flutter test      # 110/110
 flutter analyze   # 0 issues
 flutter run       # con un dispositivo o emulador Android conectado
 ```
@@ -91,6 +92,9 @@ Credenciales demo: usuario `promotor`, contraseña `demo123`.
 - [`entrega_avance1_nutrilaguajira/EVIDENCIAS_SPRINT3.md`](entrega_avance1_nutrilaguajira/EVIDENCIAS_SPRINT3.md) — resumen 6.1 y evidencias 6.2 del Sprint 3.
 - [`entrega_avance1_nutrilaguajira/EVIDENCIAS_SPRINT4.md`](entrega_avance1_nutrilaguajira/EVIDENCIAS_SPRINT4.md) — cierre técnico post-entrega (T/E, P/E, historial y TTF).
 - [`entrega_avance1_nutrilaguajira/ROADMAP_INTEROPERABILIDAD.md`](entrega_avance1_nutrilaguajira/ROADMAP_INTEROPERABILIDAD.md) — fases y gates de interoperabilidad (post-Sprint 4).
+- [`entrega_avance1_nutrilaguajira/nutrilaguajira/README_FIREBASE.md`](entrega_avance1_nutrilaguajira/nutrilaguajira/README_FIREBASE.md) — configurar y operar Firebase (Auth + Firestore).
+- [`entrega_avance1_nutrilaguajira/nutrilaguajira/DISENO_FIRESTORE.md`](entrega_avance1_nutrilaguajira/nutrilaguajira/DISENO_FIRESTORE.md) — colecciones, campos y flujo de sincronización.
+- [`entrega_avance1_nutrilaguajira/nutrilaguajira/CONTEXTO_OPENCODE.md`](entrega_avance1_nutrilaguajira/nutrilaguajira/CONTEXTO_OPENCODE.md) — resumen operativo y reglas del proyecto.
 - [`entrega_avance1_nutrilaguajira/fase_campo/`](entrega_avance1_nutrilaguajira/fase_campo/README.md) — materiales para 2027-1: protocolo de validación, guía del promotor, guía wayuunaiki (plantilla), capacitación, consentimiento e instrumentos.
 - [`entrega_avance1_nutrilaguajira/screenshots/`](entrega_avance1_nutrilaguajira/screenshots/) — capturas (`sprint2_gps/`, `sprint3_reportes/` y `sprint4_te_pe/`).
 - [`entrega_avance1_nutrilaguajira/`](entrega_avance1_nutrilaguajira/) — informe, guion de demo y proyecto Flutter completo.
@@ -118,8 +122,13 @@ entrega_avance1_nutrilaguajira/
 - **Talla/Edad y Peso/Edad** ya se calculan con una tabla **DEMO (LMS)**; el
   reemplazo por la tabla OMS oficial queda como **Gate 1** (post-Sprint 4). El
   semáforo sigue usando solo P/T, MUAC y edema.
-- La **sincronización por API** no está implementada: `SincronizacionStrategy`
-  es la interfaz preparada; hoy solo existe `SmsIntentStrategy`.
+- **Sincronización:** existe con **Cloud Firestore** (canal propio), pero es
+  **solo de subida**: no descarga ni restaura SQLite en un teléfono nuevo, y la
+  **interoperabilidad FHIR/API** con la Secretaría sigue bloqueada por los
+  Gates 1–3 del roadmap.
+- La **cuenta demo** (`promotor` / `demo123`) no sincroniza: es local.
+- El **APK publicado `v0.4.0-sprint4` todavía no incluye Firebase**; el release
+  con sincronización se publicará junto con la próxima versión.
 - **SMS sin destinatario** por diseño: el brigadista elige el destinatario en su
   app de mensajes. No se usa `SEND_SMS` ni `SharedPreferences`.
 - La tabla de referencia es **DEMO** (no las tablas OMS completas); la validación

@@ -31,7 +31,9 @@ conectividad, en condiciones reales de operación por promotores comunitarios.
 
 **Fuera de alcance:** sensibilidad/especificidad frente a diagnóstico clínico,
 comparación con otros instrumentos (MUAC, OMS), evaluación de impacto en
-desnutrición, sincronización con servidores, telemedicina.
+desnutrición y telemedicina. La sincronización con Cloud Firestore **existe**
+desde 2026-11-24, pero el piloto no la evalúa como objetivo: se opera y se
+vigila como riesgo (R-07 a R-09).
 
 ---
 
@@ -96,6 +98,7 @@ tamiza), malformación que impida medir talla, tutor que no consiente.
 | Comprensión del semáforo | Escala 1–4 | F4 Entrevista breve | Semana 4 |
 | Consistencia del cálculo | Diferencia de Z | F6 Planilla de verificación | 20 % de los tamizajes |
 | Persistencia | 0 pérdidas | Revisión del historial | Semana 6 |
+| Sincronización (si se usa cuenta institucional) | Registros faltantes/duplicados | Firestore vs. SQLite | Semana 6 |
 | Incidencias | Texto | F5 Bitácora | Permanente |
 | Contexto del sitio | Texto | F1 Ficha de ranchería | Antes de la semana 1 |
 
@@ -119,9 +122,10 @@ validados.
 | C6 | Persistencia de datos | **0 pérdidas** en el 100 % de verificaciones | historial |
 | C7 | Incidentes críticos | **0** (pérdida de datos, caso ROJO no referido) | F5 |
 | C8 | Uso autónomo a los 7 días | **≥ 80 %** de promotores siguen usándola | bitácora |
+| C9 | Sincronización tras recuperar red (solo cuenta institucional) | **100 %** de los registros en Firestore en ≤ 24 h, **0 duplicados** | Firestore + SQLite |
 
 **Criterio de fracaso (stop):** cualquier incidente crítico, o C6 < 100 %, o C1
-< 70 %. Ante eso se detiene el piloto, se corrige y se repite la capacitación.
+< 70 %, o C9 con duplicados/pérdidas. Ante eso se detiene el piloto, se corrige y se repite la capacitación.
 
 > **C5 no mide validez clínica.** Compara la app contra la *misma* tabla DEMO
 > aplicada a mano. Sirve para detectar errores de implementación (interpolación,
@@ -171,8 +175,11 @@ y salida. **Nunca** se deja un dispositivo con datos sin responsable.
    canal definido (ver §8).
 4. **Minimización**: solo se registran los datos que la app pide. No se toman
    fotografías del niño ni de la familia sin autorización específica.
-5. **Custodia del dispositivo**: PIN/biometría activos, sin cuentas personales,
-   sin nube, sin apps de mensajería con historial del proyecto.
+5. **Custodia del dispositivo**: PIN/biometría activos, sin cuentas personales
+   ni apps de mensajería con historial del proyecto. **La sincronización con
+   Firestore debe decidirse antes del piloto** (§7.3, R-07): o se usa la cuenta
+   demo (todo local), o se usa una cuenta institucional con consentimiento
+   explícito para la nube.
 6. **Anonimización para análisis**: el CSV se exporta y se eliminan `nombres` y
    `apellidos`; `id_infante` se reemplaza por un código `R1-001`. La tabla de
    correspondencia la custodia solo la coordinación, en un archivo aparte.
@@ -191,7 +198,9 @@ y salida. **Nunca** se deja un dispositivo con datos sin responsable.
 | R-04 | El intent `sms:?body=` **no fija destinatario**: el promotor elige | Capacitar: solo al número institucional definido; nunca a contactos personales |
 | R-05 | Pérdida/robo del teléfono | Registro de dispositivos, PIN, borrado remoto si el fabricante lo permite, denuncia |
 | R-06 | Exportación CSV con nombres a WhatsApp/correo | Solo al equipo; se anonimiza antes de compartir |
-| R-07 | Datos de terceros en la nube (fase posterior) | Bloqueado por los Gates 2–3 del roadmap; requiere consentimiento extendido |
+| R-07 | **Datos de menores en Google Cloud (Firestore)** desde la v0.5.0: nombres, documento, medidas y coordenadas | Consentimiento explícito para la nube; cuenta institucional (no personal); evaluar con jurídica el acuerdo de encargado del tratamiento con Google; región `us-east1` declarada; opción de operar con la cuenta demo (sin nube) |
+| R-08 | **Alertas ROJAS legibles por cualquier usuario autenticado** (`alertas_criticas`) | Limitar el alta de cuentas a la coordinación; revisar reglas antes del piloto; no compartir credenciales |
+| R-09 | **Reglas de Firestore** mal desplegadas o cuenta comprometida → fuga entre promotores | Probar reglas en el emulador, desplegar con `firebase deploy --only firestore:rules`, rotar contraseñas y revisar accesos |
 
 > **R-03 y R-04 son decisiones de producto pendientes.** No se resuelven en este
 > protocolo: se marcan como condición previa al piloto y se documentan en el

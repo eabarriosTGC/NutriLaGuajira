@@ -14,6 +14,14 @@
 > fecha de obligatoriedad no es exacta, el argumento de urgencia se debilita y
 > un evaluador puede detectarlo.
 >
+> **Actualización 2026-11-24 — no confundir canales.** La app incorporó
+> sincronización con **Cloud Firestore** (`lib/services/firestore_strategy.dart`,
+> proyecto `nutrilaguajira`). Ese es un **canal propio de respaldo**, con el SDK
+> de Firebase y el modelo de datos de la app: **no es interoperabilidad** ni
+> cumple los Gates 1–3 de este documento. `ApiStrategy` sobre FHIR/API
+> institucional **sigue sin implementarse** y sigue bloqueado por los mismos
+> gates.
+>
 > **Uso previsto.** Este documento puede compartirse con las entidades socias
 > (Uniguajira, Secretaría de Salud Departamental, PMA, Fundación Baylor, Acción
 > contra el Hambre) como punto de partida para la conversación sobre gobernanza
@@ -56,7 +64,8 @@ consentimiento extendido y gobernanza**. Por eso este roadmap empieza por
 | `SmsIntentStrategy` | ✅ existe | `lib/services/sms_intent_strategy.dart` (canal de emergencia) |
 | `ApiStrategy` | ⚠️ **TODO** | solo el `TODO(sprint4)`; no implementado |
 | `EvaluacionReporte` | ✅ existe | `lib/data/models/evaluacion_reporte.dart` (DTO aplanado) |
-| Outbox local | ✅ parcial | `evaluaciones.sincronizado` (hoy siempre 0) + patrón de `alertas_pendientes` |
+| Outbox local | ✅ parcial | `ninos.sincronizado` / `evaluaciones.sincronizado` los marca `FirestoreStrategy` (Firebase, no FHIR) + patrón de `alertas_pendientes` |
+| Sincronización Firestore | ✅ existe | `firestore_strategy.dart`, `sync_manager.dart`, reglas en `firestore.rules` |
 | Backend / nodo consolidador | ❌ no existe | fuera del APK |
 | Mapeo FHIR | ❌ no existe | este roadmap lo propone, no lo implementa |
 | Terminología validada | ❌ no existe | CIE-10/11, LOINC/UCUM, perfiles IHCE |

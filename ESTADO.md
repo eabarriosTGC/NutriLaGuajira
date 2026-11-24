@@ -1,11 +1,16 @@
 # Estado del proyecto — NutriLaGuajira
 
 Documento de traspaso para retomar el trabajo sin reconstruir contexto.
-Última actualización: **2026-11-21** (Sprint 4 técnico cerrado + APK `v0.4.0-sprint4` + borradores de la fase de campo 2027-1).
+Última actualización: **2026-11-24** (sincronización con Firebase Auth + Cloud Firestore, esquema v5).
 
 > **Nota honesta.** El Sprint 3 entrega el módulo de **reportes (CSV/PDF),
 > alertas SMS y zonas en riesgo**. La **validación en campo** con promotores se
 > ejecuta en **2027-1**, conforme al plan de trabajo, y no en este sprint.
+>
+> **Sincronización integrada (2026-11-24).** Firebase Auth + Cloud Firestore:
+> subida por lotes, alertas ROJAS y estado en el Home. **SQLite sigue siendo la
+> fuente de verdad** y la app funciona sin red. Detalle en
+> [`nutrilaguajira/README_FIREBASE.md`](entrega_avance1_nutrilaguajira/nutrilaguajira/README_FIREBASE.md).
 >
 > **Sprint 4 técnico cerrado (post-entrega).** Talla/Edad y Peso/Edad con tabla
 > **DEMO (LMS)**, `historial_screen` corregido y PDF con TTF local. El plan de
@@ -23,7 +28,7 @@ Documento de traspaso para retomar el trabajo sin reconstruir contexto.
 | Rama | `main` |
 | HEAD | el último commit de `main` (ver `git log -1`); esta tabla no se actualiza en cada commit |
 | Tag / release | `v0.4.0-sprint4` (APK de distribución, release firmado) · `v0.3.0-sprint3` (debug) · `v0.1.0-avance1` (histórico) |
-| Estado | **Sprint 1 + 2 + 3 completos** + **Sprint 4 técnico COMPLETO** (T/E-P/E DEMO + historial/TTF) + **APK de distribución `v0.4.0-sprint4`**: `flutter analyze` limpio, **101/101 tests**, formato limpio |
+| Estado | **Sprint 1 + 2 + 3 completos** + **Sprint 4 técnico COMPLETO** (T/E-P/E DEMO + historial/TTF) + **Firebase Auth + Firestore** (esquema v5) + **APK de distribución `v0.4.0-sprint4`** (sin Firebase): `flutter analyze` limpio, **110/110 tests**, formato limpio |
 | Evidencias | `entrega_avance1_nutrilaguajira/EVIDENCIAS_SPRINT{2,3,4}.md` + `screenshots/` |
 
 Alcance funcional: login local, registro de infantes/tutores, evaluación
@@ -42,7 +47,7 @@ git clone https://github.com/eabarriosTGC/NutriLaGuajira.git
 cd NutriLaGuajira/entrega_avance1_nutrilaguajira/nutrilaguajira
 
 flutter pub get
-flutter test        # debe dar 101/101 antes de tocar nada
+flutter test        # debe dar 110/110 antes de tocar nada
 flutter analyze     # debe estar limpio
 dart format --output=none --set-exit-if-changed lib test tool
 
@@ -86,7 +91,13 @@ lib/
     localizacion_service.dart GPS opcional (geolocator) + Coordenada
     reporte_csv_service.dart  filtros + CSV (BOM UTF-8, RFC 4180)
     reporte_pdf_service.dart  PDF con TTF local (encabezado, resumen, pie)
-    sincronizacion_strategy.dart  interfaz (TODO: ApiStrategy Sprint 4)
+    sincronizacion_strategy.dart  interfaz (ApiStrategy FHIR sigue sin implementar)
+    firebase_auth_service.dart    Firebase Auth + respaldo offline (hash salado)
+    firestore_strategy.dart       sincronización SQLite -> Firestore + alertas ROJAS
+    firestore_almacen.dart        WriteBatch (400 docs), set(merge: true), timeout 30 s
+    sync_manager.dart             conectividad + ValueNotifier<EstadoSync>
+    conectividad_service.dart     envoltura de connectivity_plus
+    uuid_local.dart               ids estables para documentos remotos
     sms_intent_strategy.dart  envío por intent `sms:?body=` (sin SEND_SMS)
     alerta_service.dart       encolado en ROJO, envío y reintento
   screens/                  login, home, seleccion, nino_form, evaluacion_form,
@@ -95,7 +106,7 @@ lib/
                             zonas_riesgo, zona_detalle
   theme/                    tema Material 3 + colores del semáforo
   widgets/componentes.dart  botones, chips, PanelVacio, FilaDato
-test/                       101 pruebas (motor, validadores, widget, SQLite real,
+test/                       110 pruebas (motor, validadores, widget, SQLite real,
                             migración, reportes, alertas, zonas, T/E-P/E)
 tool/calcular_demo.dart     recalcula los casos semilla con el motor real
 ```
@@ -140,7 +151,7 @@ share_plus, open_filex, pdf, printing, url_launcher`.
 `09553c5` (PDF), `3476dfb` (tabla v3 + servicios de alertas), `5e919b1`
 (pantalla de alertas) + commits de cierre (zonas, menú, docs).
 
-**Calidad:** `flutter test` 101/101, `flutter analyze` 0 issues, `dart format`
+**Calidad:** `flutter test` 110/110, `flutter analyze` 0 issues, `dart format`
 limpio.
 
 ---
@@ -202,6 +213,27 @@ Materiales de trabajo en
 | 2 | Capacitación de gestores y estudiantes | talleres + guía en español/wayuunaiki |
 | 3 | Articulación con PMA, Baylor y Secretaría | canales de notificación y brigadas |
 
+### 6.5 Sincronización con Firebase (2026-11-24)
+
+| Pieza | Estado |
+|---|---|
+| Firebase Auth (correo) + respaldo offline con hash salado | ✅ |
+| Firestore: `promotores/{uid}/ninos`, `.../evaluaciones`, `alertas_criticas` | ✅ |
+| Esquema SQLite **v5** (`uuid`, `sincronizado`, `updated_at`) + migración | ✅ |
+| Subida por lotes (400), `set(merge: true)`, timeout 30 s | ✅ |
+| Tarjeta de estado en Home + disparadores (login, guardar, conectividad, resume, manual) | ✅ |
+| Reglas y configuración (`firestore.rules`, `firebase.json`, `google-services.json`) | ✅ |
+| Semilla DEMO marcada `sincronizado = 1` (no se sube) | ✅ |
+
+**Limitaciones:** solo subida (no restaura en un teléfono nuevo); la cuenta demo
+no sincroniza; **interoperabilidad FHIR/API sigue bloqueada** (Gates 1–3). La
+sincronización con Firestore **no es interoperabilidad**: es un canal propio.
+
+> ⚠️ **Privacidad:** con cuenta institucional se envían datos de menores
+> (nombres, documento, medidas, coordenadas) a **Google Cloud, `us-east1`**. Los
+> documentos de `fase_campo/` ya lo declaran y exigen consentimiento explícito y
+> aprobación del comité de ética antes del piloto.
+
 ---
 
 ## 7. Deudas técnicas conocidas
@@ -220,13 +252,19 @@ Materiales de trabajo en
   del SMS no siempre se ve en el compositor; el intent y el `body` son correctos.
 - **Compañero de equipo**: falta agregarlo como colaborador de GitHub si va a
   hacer commits.
+- **Sincronización solo de subida**: no hay descarga ni restauración de SQLite en
+  un dispositivo nuevo (Caso 5 del `CONTEXTO_OPENCODE.md`).
+- **Firestore con datos identificables**: nombres y documento viajan a la nube;
+  antes del piloto se requiere consentimiento extendido y acuerdo de tratamiento
+  con Google.
+- **APK publicado sin Firebase**: `v0.4.0-sprint4` no incluye la sincronización.
 
 ---
 
 ## 8. Cómo se verificó (repetir antes de cada entrega)
 
 1. `flutter analyze` → sin observaciones.
-2. `flutter test` → **101/101**.
+2. `flutter test` → **110/110**.
 3. `dart format --set-exit-if-changed lib test tool` → sin cambios.
 4. Emulador: login → registrar infante → evaluación → semáforo → cerrar app →
    reabrir → historial intacto; generar CSV/PDF; encolar y enviar una alerta;

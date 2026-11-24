@@ -31,12 +31,22 @@ coordenadas y lo indica como "GPS: no capturado".
 ![Login](../screenshots/sprint2_gps/01_login.png)
 
 1. Abre **NutriLaGuajira**.
-2. Usuario `promotor` · contraseña `demo123` (en el piloto, cada promotor recibe
-   su usuario).
+2. Elige una de las dos formas:
+
+| Forma | Credenciales | ¿Sincroniza? |
+|---|---|---|
+| **Cuenta demo (local)** | `promotor` / `demo123` | **No** — todo queda en el teléfono |
+| **Cuenta institucional** | correo y contraseña creados en Firebase | **Sí** — copia a Google Cloud |
+
 3. Toca **Ingresar**.
 
-> El login es local: no hay servidor. Si olvidas la contraseña, el equipo la
-> restablece; no la compartas.
+> La cuenta demo sirve para probar sin internet. La cuenta institucional permite
+> el respaldo y que la brigada vea las alertas ROJAS, pero **envía datos de los
+> niños a la nube**: úsala solo si la familia lo autorizó (ver el
+> consentimiento).
+>
+> El login con correo necesita **internet la primera vez** en ese teléfono. Si
+> olvidas la contraseña, la coordinación la restablece; no la compartas.
 
 ---
 
@@ -131,7 +141,21 @@ Cada tamizaje **ROJO** se encola automáticamente. En **Menú → Alertas**:
 
 La app **no envía sola** y **no pide permiso de SMS**: tú eliges el destinatario.
 
-### 6.4 Zonas en riesgo
+### 6.4 Sincronización (solo con cuenta institucional)
+
+En el **Home** hay una tarjeta de sincronización:
+
+| Estado | Qué significa | Qué haces |
+|---|---|---|
+| **Todo sincronizado** | Los datos ya están en la nube | Nada |
+| **Pendientes: N** | Hay N registros esperando red | Espera a tener señal o toca la nube para reintentar |
+| **Sin conexión** | No hay red; se sigue trabajando igual | Sigue tamizando: se guarda en el teléfono |
+| **Sincronizando…** | Está subiendo | No cierres la app |
+
+Se sincroniza solo al entrar, al guardar, al volver a la app y al recuperar
+señal. Si falla, **no pierdes nada**: queda pendiente y se reintenta.
+
+### 6.5 Zonas en riesgo
 
 ![Zonas](../screenshots/sprint3_reportes/15_zonas_riesgo.png)
 
@@ -172,7 +196,9 @@ coordenadas.
 ## 9. Lo que la app NO hace (para que no te sorprenda)
 
 - No diagnostica: **tamiza y alerta**.
-- No sincroniza con ninguna nube ni servidor.
+- **Sincroniza solo con cuenta institucional** (Google Cloud / Firestore). Con
+  la cuenta demo, nada sale del teléfono.
+- No descarga datos: si cambias de teléfono, el historial no se restaura solo.
 - No reemplaza la tabla OMS oficial (usa tablas **DEMO**).
 - No edita ni borra evaluaciones.
 - No funciona en iPhone.

@@ -23,3 +23,6 @@ entrega_avance1_nutrilaguajira/app-debug.apk
 *.jks
 *.keystore
 **/nutrilaguajira-keystore/
+
+# Paquete de entrega del usuario (no se commitea)
+/NutriLaGuajira-repo-actualizado-*.zip
