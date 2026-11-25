@@ -4,6 +4,17 @@
 > revisa `README.md`, `README_FIREBASE.md` y `DISENO_FIRESTORE.md`. El proyecto
 > está en la carpeta `nutrilaguajira/` y ya funcionó de punta a punta con
 > Firebase.
+>
+> **Actualización 2026-11-25 (estado de la integración en el repo):**
+> el código de este ZIP ya está integrado en
+> `eabarriosTGC/NutriLaGuajira` (commits `615f56d` y `d8e25a9`), con
+> `flutter analyze` limpio, **110/110 tests** y `flutter build apk --debug` OK.
+> Las reglas de Firestore están **desplegadas** (`firebase deploy --only
+> firestore:rules`, cuenta `coachingedwin@gmail.com`) y `.firebaserc` fija el
+> proyecto `nutrilaguajira`. Pendiente: prueba real de login/sync en dispositivo,
+> restringir la API key, release `v0.5.0` (el APK publicado `v0.4.0-sprint4` no
+> incluye Firebase) y distribución del kit del keystore. Ver
+> [`../../ESTADO.md`](../../ESTADO.md) §11.
 
 ---
 

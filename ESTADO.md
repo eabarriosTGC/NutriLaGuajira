@@ -1,7 +1,7 @@
 # Estado del proyecto — NutriLaGuajira
 
 Documento de traspaso para retomar el trabajo sin reconstruir contexto.
-Última actualización: **2026-11-24** (sincronización con Firebase Auth + Cloud Firestore, esquema v5).
+Última actualización: **2026-11-25** (Firebase operativo: reglas desplegadas y `.firebaserc`; sesión pausada).
 
 > **Nota honesta.** El Sprint 3 entrega el módulo de **reportes (CSV/PDF),
 > alertas SMS y zonas en riesgo**. La **validación en campo** con promotores se
@@ -28,7 +28,7 @@ Documento de traspaso para retomar el trabajo sin reconstruir contexto.
 | Rama | `main` |
 | HEAD | el último commit de `main` (ver `git log -1`); esta tabla no se actualiza en cada commit |
 | Tag / release | `v0.4.0-sprint4` (APK de distribución, release firmado) · `v0.3.0-sprint3` (debug) · `v0.1.0-avance1` (histórico) |
-| Estado | **Sprint 1 + 2 + 3 completos** + **Sprint 4 técnico COMPLETO** (T/E-P/E DEMO + historial/TTF) + **Firebase Auth + Firestore** (esquema v5) + **APK de distribución `v0.4.0-sprint4`** (sin Firebase): `flutter analyze` limpio, **110/110 tests**, formato limpio |
+| Estado | **Sprint 1–4 técnicos completos** + **Firebase Auth + Firestore** (esquema v5, reglas desplegadas) + **APK `v0.4.0-sprint4`** (sin Firebase): `flutter analyze` limpio, **110/110 tests**, formato limpio |
 | Evidencias | `entrega_avance1_nutrilaguajira/EVIDENCIAS_SPRINT{2,3,4}.md` + `screenshots/` |
 
 Alcance funcional: login local, registro de infantes/tutores, evaluación
@@ -54,13 +54,32 @@ dart format --output=none --set-exit-if-changed lib test tool
 flutter run         # dispositivo/emulador Android
 ```
 
-Para publicar una versión nueva del APK:
+Entorno que **debe** estar así (probado el 2026-11-25):
+
+| Pieza | Valor |
+|---|---|
+| Flutter / Dart | 3.47.9 (stable) / 3.13.7 |
+| Java / keytool | `/opt/android-studio/jbr/bin` (no está en PATH por defecto) |
+| `firebase` | 15.37.0 en `~/.local/bin/firebase` |
+| `flutterfire` | 1.5.0 en `~/.local/bin/flutterfire` (symlink a `~/.pub-cache/bin`) |
+| Keystore | `~/nutrilaguajira-keystore/nutrilaguajira.jks` (**fuera del repo**) |
+| Secretos | keyring libsecret: `servicio=nutrilaguajira clave=keystore` y `clave=gpg-backup` |
+| AVD | **no hay uno de este proyecto**; existe `moteros_test` (otro proyecto) |
+
+Para publicar una versión nueva del APK (firma real + split por ABI):
 
 ```bash
-flutter build apk --debug
-cp build/app/outputs/flutter-apk/app-debug.apk ../../app-debug.apk
-gh release upload <tag> ../../app-debug.apk --clobber
+export PATH="$PATH:/opt/android-studio/jbr/bin"
+# 1. subir version en pubspec.yaml (version: X.Y.Z+N)
+flutter build apk --release --split-per-abi
+sha256sum build/app/outputs/flutter-apk/*release.apk
+/home/x/Android/Sdk/build-tools/36.0.0/apksigner verify --print-certs \
+  build/app/outputs/flutter-apk/app-arm64-v8a-release.apk
+gh release create vX.Y.Z <los 3 apk> --title "..." --notes-file ...
 ```
+
+> El certificado de firma es `B4:C9:B4:92…92:F5` y **no cambia** al rotar la
+> contraseña del keystore. Los APK publicados se actualizan con la misma firma.
 
 El APK **no** se commitea (está en `.gitignore`): va como asset del release.
 
@@ -288,6 +307,65 @@ Evidencia visual: `entrega_avance1_nutrilaguajira/screenshots/`
 6. Tildes faltantes en textos visibles y en la semilla.
 7. `setState` con callback que devuelve `Future` en la pantalla de alertas →
    corregido con bloque `{ ... }` (la misma deuda existe en `historial_screen`).
+
+---
+
+## 11. Punto de reanudación (2026-11-25)
+
+Sesión pausada aquí. Todo está commiteado y subido; no hay trabajo a medias.
+
+### 11.1 Hecho y verificado
+
+| Ítem | Evidencia |
+|---|---|
+| Firebase integrado (Auth + Firestore, esquema v5) | commit `615f56d`; 110/110; `flutter build apk --debug` OK |
+| Firebase CLI autenticada y reglas publicadas | `coachingedwin@gmail.com`; `deploy --only firestore:rules` → *released* |
+| Proyecto fijado | `.firebaserc` (commit `d8e25a9`) |
+| Documentos de campo | `fase_campo/` (borradores v0.1; consentimiento v0.2 con la nube declarada) |
+| Keystore | contraseña nueva, `.tar.gz` + `.gpg` verificados, secretos en keyring |
+
+### 11.2 Pendiente, en orden sugerido
+
+1. **Prueba real de login + sync** (no hecha: sin cuenta de prueba en un
+   dispositivo). Checklist:
+   - crear/iniciar sesión con un correo de Firebase en el teléfono;
+   - modo avión → tamizar → ver "pendientes";
+   - quitar modo avión → debe subir solo;
+   - en consola: `promotores/{uid}/ninos`, `.../evaluaciones` y
+     `alertas_criticas/{uid}_{uuid}` solo si hubo ROJO.
+2. **Restringir la API key** en Google Cloud (package + SHA-1 de firma).
+3. **Release `v0.5.0`** con Firebase (subir `version:` en `pubspec.yaml`).
+4. **Distribuir el kit del keystore** a gestor + USB cifrado + nube, y verificar
+   cada copia con `verificar-backup.sh`.
+5. **Aprobación institucional** de protocolo/consentimiento + validación del
+   wayuunaiki con hablantes nativos.
+6. **Decidir R-03/R-04** (SMS con nombre del niño y sin destinatario fijo).
+
+### 11.3 Comandos de reanudación
+
+```bash
+cd ~/dev/NutriLaGuajira && git pull
+cd entrega_avance1_nutrilaguajira/nutrilaguajira
+flutter pub get
+flutter analyze && flutter test          # 0 issues / 110/110
+dart format --output=none --set-exit-if-changed lib test tool
+
+firebase login:list                       # debe seguir coachingedwin@gmail.com
+firebase deploy --only firestore:rules    # idempotente
+```
+
+### 11.4 Reglas que no se rompen
+
+Resumen de `nutrilaguajira/CONTEXTO_OPENCODE.md` §8:
+
+- SQLite es la **fuente de verdad**; Firestore es transporte. La app abre sin
+  red y sin Firebase.
+- El cálculo y el semáforo **nunca** se mueven a la nube.
+- `SmsIntentStrategy` no se elimina.
+- Errores de red **silenciosos**: quedan pendientes y se reintentan.
+- Cambios de esquema → subir `versionEsquema` + migración + tests.
+- Base `(default)` con paréntesis; no crear otra.
+- No commitear `local.properties`, `key.properties`, `*.jks`, `build/`.
 
 ---
 
